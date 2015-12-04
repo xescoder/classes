@@ -1,0 +1,27 @@
+{
+  "name": "classes",
+  "version": "0.0.1",
+  "description": "JavaScript OOP framework",
+  "main": "classes.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xescoder/classes.git"
+  },
+  "keywords": [
+    "class",
+    "oop"
+  ],
+  "author": "Alexandr Yakovlev",
+  "author": {
+    "name": "Alexandr Yakovlev",
+    "email": "xescoder@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xescoder/classes/issues"
+  },
+  "homepage": "https://github.com/xescoder/classes#readme"
+}

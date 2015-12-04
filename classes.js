@@ -3,6 +3,33 @@ var Classes = (function() {
     var $ = {}, // public fields
         _ = {}; // private fields
 
+    $.getType = function(value) {
+
+        if (value === null) {
+            return 'null';
+        }
+
+        var type = typeof(value);
+
+        if (type !== 'object') {
+            return type;
+        }
+
+        if (value.__className__) {
+            return value.__className__;
+        }
+
+        return Object.prototype
+            .toString
+            .call(value)
+            .slice(8, -1);
+
+    };
+
+    _.isFunction = function(value) {
+        return $.getType(value) === 'function';
+    };
+
     _.isForbiddenName = function(obj, name) {
         return obj[name];
     };
@@ -14,6 +41,7 @@ var Classes = (function() {
         }
 
         $[name] = constructor;
+        $[name].prototype.__className__ = name;
 
     };
 
@@ -33,7 +61,7 @@ var Classes = (function() {
 
                 res[mod][key] = obj[key];
 
-                if (typeof(res[mod][key]) === 'function') {
+                if (_.isFunction(res[mod][key])) {
                     res[mod][key] = res[mod][key].bind(res.private);
                 }
 
@@ -53,10 +81,12 @@ var Classes = (function() {
 
         _.createClass(name, function Class() {
 
-            if (typeof(props.public.constructor) === 'function') {
+            if (_.isFunction(props.public.constructor)) {
                 props.public.constructor.apply(props.private, arguments);
                 delete props.public.constructor;
             }
+
+            props.public.__proto__ = this.__proto__;
 
             return props.public;
 
@@ -109,3 +139,17 @@ test.setPrefix('good');
 console.log(Classes);
 console.log(test);
 console.log(test.getValue());
+
+console.log();
+
+console.log(Classes.getType(-1));
+console.log(Classes.getType(null));
+console.log(Classes.getType(function(){}));
+console.log(Classes.getType(undefined));
+console.log(Classes.getType([]));
+console.log(Classes.getType(test));
+
+console.log();
+console.log(test instanceof Classes.Test);
+
+

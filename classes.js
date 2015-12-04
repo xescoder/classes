@@ -6,16 +6,10 @@ var Classes = (function() {
     $.getType = function(value) {
 
         if (value === null) {
-            return 'null';
+            return 'Null';
         }
 
-        var type = typeof(value);
-
-        if (type !== 'object') {
-            return type;
-        }
-
-        if (value.__className__) {
+        if ((typeof(value) === 'object') && value.__className__) {
             return value.__className__;
         }
 
@@ -27,7 +21,7 @@ var Classes = (function() {
     };
 
     _.isFunction = function(value) {
-        return $.getType(value) === 'function';
+        return typeof(value) === 'function';
     };
 
     _.isForbiddenName = function(obj, name) {
@@ -142,6 +136,7 @@ console.log(test.getValue());
 
 console.log();
 
+console.log(Classes.getType(false));
 console.log(Classes.getType(-1));
 console.log(Classes.getType(null));
 console.log(Classes.getType(function(){}));

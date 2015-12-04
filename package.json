@@ -4,7 +4,7 @@
   "description": "JavaScript OOP framework",
   "main": "classes.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/mocha/bin/mocha --require=./tests/utils/helpers.js --reporter=spec ./tests"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,12 @@
   "bugs": {
     "url": "https://github.com/xescoder/classes/issues"
   },
-  "homepage": "https://github.com/xescoder/classes#readme"
+  "homepage": "https://github.com/xescoder/classes#readme",
+  "devDependencies": {
+    "mocha": "2.3.4",
+    "chai": "3.4.1",
+    "lodash": "3.10.1",
+    "sinon": "1.17.2",
+    "sinon-chai": "2.8.0"
+  }
 }

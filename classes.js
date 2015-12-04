@@ -92,6 +92,11 @@ var Classes = (function() {
 
 })();
 
+if (module && module.parent) {
+    module.exports = Classes;
+    return;
+}
+
 
 /* ================================ Проверка ================================== */
 

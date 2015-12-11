@@ -20,8 +20,20 @@ var Classes = (function() {
 
     };
 
+    $.enableTestMode = function() {
+        _.setProto($, _);
+    };
+
     _.isFunction = function(value) {
         return typeof(value) === 'function';
+    };
+
+    _.getProto = function(obj) {
+        return obj.__proto__;
+    };
+
+    _.setProto = function(obj, proto) {
+        obj.__proto__ = proto;
     };
 
     _.isForbiddenName = function(obj, name) {
@@ -63,7 +75,7 @@ var Classes = (function() {
 
         }
 
-        res.private.__proto__ = res.public;
+        _.setProto(res.private, res.public);
 
         return res;
 
@@ -80,7 +92,7 @@ var Classes = (function() {
                 delete props.public.constructor;
             }
 
-            props.public.__proto__ = this.__proto__;
+            _.setProto(props.public, _.getProto(this));
 
             return props.public;
 

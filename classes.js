@@ -103,24 +103,20 @@ var Classes = (function() {
 
     $.decl = function(name, body) {
 
-        var props = _.createModsObjects(body);
-
         _.createClass(name, function() {
 
-            var public = {};
+            var props = _.createModsObjects(body),
+                constructor = props.public.constructor;
 
-            for (key in props.public) {
-                public[key] = props.public[key];
+            delete props.public.constructor;
+
+            for (var key in props.public) {
+                this[key] = props.public[key];
             }
 
-            if (_.isFunction(public.constructor)) {
-                public.constructor.apply(props.private, arguments);
-                delete public.constructor;
+            if (_.isFunction(constructor)) {
+                constructor.apply(props.private, arguments);
             }
-
-            _.setProto(public, _.getProto(this));
-
-            return public;
 
         });
 

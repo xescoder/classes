@@ -107,14 +107,20 @@ var Classes = (function() {
 
         _.createClass(name, function() {
 
-            if (_.isFunction(props.public.constructor)) {
-                props.public.constructor.apply(props.private, arguments);
-                delete props.public.constructor;
+            var public = {};
+
+            for (key in props.public) {
+                public[key] = props.public[key];
             }
 
-            _.setProto(props.public, _.getProto(this));
+            if (_.isFunction(public.constructor)) {
+                public.constructor.apply(props.private, arguments);
+                delete public.constructor;
+            }
 
-            return props.public;
+            _.setProto(public, _.getProto(this));
+
+            return public;
 
         });
 
@@ -164,7 +170,9 @@ Classes.decl('Test', {
 
 });
 
-var test = new Classes.Test(123);
+var test = new Classes.Test(123),
+    test1 = new Classes.Test(2);
+
 test.setPrefix('good');
 
 console.log(Classes);

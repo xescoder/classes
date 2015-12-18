@@ -67,6 +67,15 @@ describe('Classes.getType', function() {
 
     });
 
+    it('должен возвращать Class для класса', function() {
+
+        var value = Classes.Test,
+            type = Classes.getType(value);
+
+        assert.strictEqual(type, 'Class');
+
+    });
+
     it('должен возвращать название типа для экземпляра класса', function() {
 
         var value = new Classes.Test(),

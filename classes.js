@@ -3,14 +3,22 @@ var Classes = (function() {
     var $ = {}, // public fields
         _ = {}; // private fields
 
+    $.TYPES = {
+        CLASS: 'Class'
+    };
+
     $.getType = function(value) {
 
         if (value === null) {
             return 'Null';
         }
 
-        if ((typeof(value) === 'object') && value.__className__) {
-            return value.__className__;
+        // Ленивая инициализация regexp для определения типа
+        var key = 'typeRegExp',
+            typeRegExp = _.getCache(key) || _.setCache(key, /object|function/);
+
+        if (typeRegExp.test(typeof(value)) && value.__type__) {
+            return value.__type__;
         }
 
         return Object.prototype
@@ -36,6 +44,16 @@ var Classes = (function() {
         obj.__proto__ = proto;
     };
 
+    _.getCache = function(key) {
+        return _.cache && _.cache[key];
+    };
+
+    _.setCache = function(key, value) {
+        _.cache || (_.cache = {});
+        _.cache[key] = value;
+        return _.cache[key];
+    };
+
     _.isForbiddenName = function(obj, name) {
         return obj[name];
     };
@@ -46,8 +64,10 @@ var Classes = (function() {
             return;
         }
 
+        constructor.__type__ = $.TYPES.CLASS;
+        constructor.prototype.__type__ = name;
+
         $[name] = constructor;
-        $[name].prototype.__className__ = name;
 
     };
 
@@ -85,7 +105,7 @@ var Classes = (function() {
 
         var props = _.createModsObjects(body);
 
-        _.createClass(name, function Class() {
+        _.createClass(name, function() {
 
             if (_.isFunction(props.public.constructor)) {
                 props.public.constructor.apply(props.private, arguments);
@@ -153,15 +173,6 @@ console.log(test.getValue());
 
 console.log();
 
-console.log(Classes.getType(false));
-console.log(Classes.getType(-1));
-console.log(Classes.getType(null));
-console.log(Classes.getType(function(){}));
-console.log(Classes.getType(undefined));
-console.log(Classes.getType([]));
-console.log(Classes.getType(test));
-
-console.log();
 console.log(test instanceof Classes.Test);
 
 

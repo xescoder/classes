@@ -1,9 +1,15 @@
 describe('Classes.getType', function() {
 
+    var Classes;
+
     before(function() {
+
+        Classes = getClasses();
+
         Classes.decl('Test', {
             public: { constructor: function() {} }
         });
+
     });
 
     it('должен возвращать Undefined для undefined', function() {

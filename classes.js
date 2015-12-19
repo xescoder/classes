@@ -32,6 +32,10 @@ var Classes = (function() {
         _.setProto($, _);
     };
 
+    _.setPrivate = function(prop, value) {
+        _[prop] = value;
+    };
+
     _.isFunction = function(value) {
         return typeof(value) === 'function';
     };

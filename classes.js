@@ -122,7 +122,7 @@ var Classes = (function() {
      * @returns {Boolean}
      */
     _.isForbiddenName = function(obj, name) {
-        return obj[name];
+        return obj.hasOwnProperty(name);
     };
 
     /**

@@ -3,10 +3,19 @@ var Classes = (function() {
     var $ = {}, // public fields
         _ = {}; // private fields
 
+    /**
+     * Перечисление поддерживаемых типов классов
+     */
     $.TYPES = {
         CLASS: 'Class'
     };
 
+    /**
+     * Возвращает название типа
+     *
+     * @param {Mixed} value - Значение
+     * @returns {String}
+     */
     $.getType = function(value) {
 
         if (value === null) {
@@ -28,40 +37,101 @@ var Classes = (function() {
 
     };
 
+    /**
+     * Включает тестовый режим работы
+     */
     $.enableTestMode = function() {
         _.setProto($, _);
     };
 
+    /**
+     * Устанавливает значение приватного поля Classes
+     *
+     * @private
+     * @param {String} prop - Название приватного поля
+     * @param {Mixes} value - Устанавливаемое значение
+     */
     _.setPrivate = function(prop, value) {
         _[prop] = value;
     };
 
+    /**
+     * Возвращает true, если переданное значение является функцией
+     *
+     * @private
+     * @param {Mixed} value - Значение
+     * @returns {Boolean}
+     */
     _.isFunction = function(value) {
         return typeof(value) === 'function';
     };
 
+    /**
+     * Возвращает прототип объекта
+     *
+     * @private
+     * @param {Object} obj - Объект
+     * @returns {Object}
+     */
     _.getProto = function(obj) {
         return obj.__proto__;
     };
 
+    /**
+     * Устанавливает прототип объекту
+     *
+     * @private
+     * @param {Object} obj - Объект
+     * @param {Object} proto - Прототип
+     */
     _.setProto = function(obj, proto) {
         obj.__proto__ = proto;
     };
 
+    /**
+     * Возвращает значение из внутреннего кэша по ключу
+     *
+     * @private
+     * @param {String} key - Ключ
+     * @returns {Mixed}
+     */
     _.getCache = function(key) {
         return _.cache && _.cache[key];
     };
 
+    /**
+     * Сохраняет значение во внутренний кэш и возвращает его
+     *
+     * @private
+     * @param {String} key - Ключ
+     * @param {Mixed} value - Значение
+     * @returns {Mixed}
+     */
     _.setCache = function(key, value) {
         _.cache || (_.cache = {});
         _.cache[key] = value;
         return _.cache[key];
     };
 
+    /**
+     * Возвращает true если имя класса недопустимо
+     *
+     * @private
+     * @param {Object} obj - Объект, в котором будет сохранён класс
+     * @param {String} name - Имя класса
+     * @returns {Boolean}
+     */
     _.isForbiddenName = function(obj, name) {
         return obj[name];
     };
 
+    /**
+     * Создаёт новый класс
+     *
+     * @private
+     * @param {String} name - Имя класса
+     * @param {Function} constructor - Конструктор класса
+     */
     _.createClass = function(name, constructor) {
 
         if (_.isForbiddenName($, name)) {
@@ -75,6 +145,13 @@ var Classes = (function() {
 
     };
 
+    /**
+     * Создаёт объект свойств класса
+     *
+     * @private
+     * @param {Object} body - Тело декларации класса
+     * @returns {Object}
+     */
     _.createModsObjects = function(body) {
 
         var res = {
@@ -105,6 +182,12 @@ var Classes = (function() {
 
     };
 
+    /**
+     * Декларирует новый класс
+     *
+     * @param {String} name - Имя класса
+     * @param {Object} body - Тело класса
+     */
     $.decl = function(name, body) {
 
         _.createClass(name, function() {

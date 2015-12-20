@@ -259,9 +259,12 @@ var test = new Classes.Test(123),
 test.setPrefix('good');
 
 console.log(Classes);
-console.log(test);
-console.log(test.getValue());
+console.log();
 
+console.log(test);
+console.log();
+
+console.log(test.getValue());
 console.log();
 
 console.log(test instanceof Classes.Test);

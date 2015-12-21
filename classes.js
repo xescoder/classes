@@ -231,14 +231,15 @@ var Classes = (function() {
     };
 
     /**
-     * Декларирует новый класс
+     * Создаёт публичный конструктор класса
      *
-     * @param {String} name - Имя класса
-     * @param {Object} body - Тело класса
+     * @private
+     * @param {Object} body - Тело декларации класса
+     * @returns {Function}
      */
-    $.decl = function(name, body) {
+    _.createPublicConstructor = function(body) {
 
-        _.createClass(name, function() {
+        return function() {
 
             var props = _.copyProps(body),
                 constructor = props.public.constructor;
@@ -253,8 +254,18 @@ var Classes = (function() {
                 constructor.apply(props.private, arguments);
             }
 
-        });
+        };
 
+    };
+
+    /**
+     * Декларирует новый класс
+     *
+     * @param {String} name - Имя класса
+     * @param {Object} body - Тело класса
+     */
+    $.decl = function(name, body) {
+        _.createClass(name, _.createPublicConstructor(body));
     };
 
     return $;

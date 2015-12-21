@@ -274,11 +274,11 @@ Classes.decl('Test', {
     public: {
 
         constructor: function(param) {
-            this._value = param;
+            this._param.value = param;
         },
 
         getValue: function() {
-            return this.getPrefixPublic() + ':' + this._value;
+            return this.getPrefixPublic() + ':' + this._param.value;
         },
 
         setPrefix: function(prefix) {
@@ -292,6 +292,10 @@ Classes.decl('Test', {
     },
 
     private: {
+
+        _param: {
+            value: 1
+        },
 
         _getPrefix: function() {
             return this._prefix;

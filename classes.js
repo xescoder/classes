@@ -114,6 +114,55 @@ var Classes = (function() {
     };
 
     /**
+     * Клонирует значение переменной
+     *
+     * @private
+     * @param {Mixed} value - Клонируемое значение
+     * @returns {Mixed}
+     */
+    _.clone = function(value) {
+
+        var copy, type;
+
+        // Для простых типов, а также Null, Undefined и Function
+        if (value === null || typeof value !== 'object') {
+            return value;
+        }
+
+        type = $.getType(value);
+
+        // Для Date
+        if (type === 'Date') {
+
+            copy = new Date();
+            copy.setTime(value.getTime());
+            return copy;
+
+        }
+
+        // Для Array
+        if (type === 'Array') {
+
+            copy = [];
+            for (var i = 0, len = value.length; i < len; i++) {
+                copy[i] = _.clone(value[i]);
+            }
+            return copy;
+
+        }
+
+        // Для всех остальных (Object)
+        copy = {};
+        for (var attr in value) {
+            if (value.hasOwnProperty(attr)) {
+                copy[attr] = _.clone(value[attr]);
+            }
+        }
+        return copy;
+
+    };
+
+    /**
      * Возвращает true если имя класса недопустимо
      *
      * @private

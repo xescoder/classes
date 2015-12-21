@@ -195,39 +195,38 @@ var Classes = (function() {
     };
 
     /**
-     * Создаёт объект свойств класса
+     * Копирует свойства объекта
      *
      * @private
      * @param {Object} body - Тело декларации класса
      * @returns {Object}
      */
-    _.createModsObjects = function(body) {
+    _.copyProps = function(body) {
 
-        var res = {
-                public: {},
-                private: {}
+        var props = {
+                public: null,
+                private: null
             },
-            i, mod, obj, key;
+            mod, key;
 
-        for (mod in res) {
-
-            obj = body[mod] || {};
-
-            for (key in obj) {
-
-                res[mod][key] = obj[key];
-
-                if (_.isFunction(res[mod][key])) {
-                    res[mod][key] = res[mod][key].bind(res.private);
-                }
-
-            }
-
+        // Копируем свойства объекта из декларации
+        for (mod in props) {
+            props[mod] = _.clone(body[mod] || {});
         }
 
-        _.setProto(res.private, res.public);
+        // Устанавливаем контекст для всех функций
+        for (mod in props) {
+            for (key in props[mod]) {
+                if (_.isFunction(props[mod][key])) {
+                    props[mod][key] = props[mod][key].bind(props.private);
+                }
+            }
+        }
 
-        return res;
+        // Связываем приватную область видимости и публичную
+        _.setProto(props.private, props.public);
+
+        return props;
 
     };
 
@@ -241,7 +240,7 @@ var Classes = (function() {
 
         _.createClass(name, function() {
 
-            var props = _.createModsObjects(body),
+            var props = _.copyProps(body),
                 constructor = props.public.constructor;
 
             delete props.public.constructor;

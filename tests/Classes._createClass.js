@@ -7,11 +7,15 @@ describe('Classes._createClass', function() {
         Classes.enableTestMode();
     });
 
-    it('не перезаписывает существующий класс', function() {
+    it('возвращает ошибку, если имя класса уже занято', function() {
 
         Classes.Test = { field: 4 };
-        Classes.createClass('Test', sinon.stub());
 
+        var test = function() {
+            Classes.createClass('Test', sinon.stub());
+        };
+
+        assert.throw(test, 'Classes. Не удалось создать класс: имя Test уже занято.');
         assert.strictEqual(Classes.Test.field, 4);
 
     });

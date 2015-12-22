@@ -184,7 +184,7 @@ var Classes = (function() {
     _.createClass = function(name, constructor) {
 
         if (_.isForbiddenName($, name)) {
-            return;
+            throw new Error('Classes. Не удалось создать класс: имя ' + name + ' уже занято.');
         }
 
         constructor.__type__ = $.TYPES.CLASS;

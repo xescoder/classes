@@ -2,7 +2,7 @@ describe('Classes._copyProps', function() {
 
     var Classes;
 
-    beforeEach(function() {
+    before(function() {
         Classes = getClasses();
         Classes.enableTestMode();
     });

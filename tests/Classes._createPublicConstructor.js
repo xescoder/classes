@@ -6,7 +6,7 @@ describe('Classes._createPublicConstructor', function() {
 
         Classes = getClasses();
         Classes.enableTestMode();
-        Classes.setPrivate('_copyProps', function(body) { return body; })
+        Classes.setPrivate('_copyProps', sinon.stub.returnsArg(0))
 
     });
 

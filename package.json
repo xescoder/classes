@@ -4,7 +4,8 @@
   "description": "JavaScript OOP framework",
   "main": "classes.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha --require=./tests/utils/helpers.js --reporter=spec ./tests"
+    "test": "./node_modules/mocha/bin/mocha --require=./tests/utils/helpers.js --reporter=spec ./tests",
+    "memory_leak_test": "node --expose-gc ./quality_control/memory_leak.js"
   },
   "repository": {
     "type": "git",

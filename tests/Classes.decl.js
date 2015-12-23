@@ -7,7 +7,7 @@ describe('Classes.decl', function() {
         Classes.enableTestMode();
     });
 
-    it.only('вызывает функции для создания класса в правильном порядке', function() {
+    it('вызывает функции для создания класса в правильном порядке', function() {
 
         var body = {},
             createClassSpy = sinon.spy(),

@@ -197,6 +197,7 @@ var Classes = (function() {
     /**
      * Корректно привязывает контекст к функции
      *
+     * @private
      * @param {Object} props - Объект свойств класса
      * @param {String} mod - Названия модификатора видимости
      * @param {String} name - Имя функции

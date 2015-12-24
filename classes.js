@@ -195,6 +195,24 @@ var Classes = (function() {
     };
 
     /**
+     * Корректно привязывает контекст к функции
+     *
+     * @param {Object} props - Объект свойств класса
+     * @param {String} mod - Названия модификатора видимости
+     * @param {String} name - Имя функции
+     */
+    _.bind = function(props, mod, name) {
+
+        var func = props[mod][name];
+
+        props[mod][name] = function() {
+            var res = func.apply(props.private, arguments);
+            return (res === props.private) ? props[mod] : res;
+        };
+
+    };
+
+    /**
      * Копирует свойства объекта
      *
      * @private
@@ -218,7 +236,7 @@ var Classes = (function() {
         for (mod in props) {
             for (key in props[mod]) {
                 if (_.isFunction(props[mod][key])) {
-                    props[mod][key] = props[mod][key].bind(props.private);
+                    _.bind(props, mod, key);
                 }
             }
         }
@@ -241,18 +259,19 @@ var Classes = (function() {
 
         return function() {
 
-            var props = _.copyProps(body),
-                constructor = props.public.constructor;
+            var props = _.copyProps(body), mod;
 
-            delete props.public.constructor;
-
-            for (var key in props.public) {
-                this[key] = props.public[key];
+            if (_.isFunction(props.public.constructor)) {
+                props.public.constructor.apply(props.private, arguments);
             }
 
-            if (_.isFunction(constructor)) {
-                constructor.apply(props.private, arguments);
+            for (mod in props) {
+                delete props[mod].constructor;
             }
+
+            _.setProto(props.public, _.getProto(this));
+
+            return props.public;
 
         };
 

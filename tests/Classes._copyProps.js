@@ -44,16 +44,17 @@ describe('Classes._copyProps', function() {
 
         var body = {
                 private: {
-                    func: function() { return this; }
+                    _param: 123,
+                    func: function() { return this._param; }
                 },
                 public: {
-                    func: function() { return this; }
+                    func: function() { return this._param; }
                 }
             },
             props = Classes.copyProps(body);
 
-        assert.strictEqual(props.private.func(), props.private);
-        assert.strictEqual(props.public.func(), props.private);
+        assert.strictEqual(props.private.func(), 123);
+        assert.strictEqual(props.public.func(), 123);
 
     });
 

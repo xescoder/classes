@@ -17,6 +17,7 @@ describe('Element base', function() {
 
                 setValue: function(value) {
                     this._value = value;
+                    return this;
                 },
 
                 getValue: function() {
@@ -25,6 +26,7 @@ describe('Element base', function() {
 
                 setName: function(name) {
                     this._name = name;
+                    return this;
                 },
 
                 getName: function() {
@@ -88,6 +90,17 @@ describe('Element base', function() {
 
         assert.strictEqual(param.getName(), 'param2');
         assert.strictEqual(param.getValue(), 20);
+
+    });
+
+    it('возвращая this функции не расскрывают внутренней реализации класса', function() {
+
+        var param = new Classes.Param('param', 10),
+            _this = param.setValue(1);
+
+        assert.isUndefined(_this._name);
+        assert.isUndefined(_this._value);
+        assert.strictEqual(_this, param);
 
     });
 

@@ -224,6 +224,7 @@ var Classes = (function() {
 
         var props = {
                 public: null,
+                protected: null,
                 private: null
             },
             mod, key;
@@ -242,8 +243,9 @@ var Classes = (function() {
             }
         }
 
-        // Связываем приватную область видимости и публичную
-        _.setProto(props.private, props.public);
+        // Связываем области видимости
+        _.setProto(props.protected, props.public);
+        _.setProto(props.private, props.protected);
 
         return props;
 

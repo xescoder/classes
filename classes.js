@@ -163,6 +163,27 @@ var Classes = (function() {
     };
 
     /**
+     * Копирует свойства объекта
+     *
+     * @private
+     * @param {Object} obj - Объект назначения
+     * @param {Object} source - Исходный объект
+     * @param {Boolean} isFullClone - Полностью скопировать объект
+     * @returns {Object}
+     */
+    _.assign = function(obj, source, isFullClone) {
+
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                obj[key] = isFullClone ? _.clone(source[key]) : source[key];
+            }
+        }
+
+        return obj;
+
+    };
+
+    /**
      * Возвращает true если имя класса недопустимо
      *
      * @private
@@ -248,6 +269,58 @@ var Classes = (function() {
         _.setProto(props.private, props.protected);
 
         return props;
+
+    };
+
+    /**
+     * Создаёт внутреннюю область видимости объекта
+     *
+     * @private
+     * @param {Object} body - Тело декларации класса
+     * @param {Object} base - Экземпляр базового класса
+     * @returns {Object}
+     */
+    _.createInternalScope = function(body, base) {
+
+        var scope = {};
+
+        scope.public = Object.create(base.protected || base.public);
+        _.assign(scope.public, body.public || {});
+
+        scope.protected = Object.create(scope.public);
+        _.assign(scope.protected, body.protected || {});
+
+        scope.private = Object.create(scope.protected);
+        _.assign(scope.private, body.private || {}, true);
+
+        return scope;
+
+    };
+
+    /**
+     * Создаёт внешнюю область видимости объекта
+     * Пока без bind
+     *
+     * @private
+     * @param {Object} internalScope - Внутренняя область видимости объекта
+     * @param {Object} base - Экземпляр базового класса
+     * @param {Boolean} isProtectedNeeded - Необходим модификатор protected
+     * @returns {Object}
+     */
+    _.createExternalScope = function(internalScope, base, isProtectedNeeded) {
+
+        var scope = {};
+
+        scope.public = Object.create(base.public);
+        _.assign(scope.public, internalScope.public);
+
+        if (isProtectedNeeded) {
+            scope.protected = Object.create(base.protected || base.public);
+            _.assign(scope.protected, scope.public);
+            _.assign(scope.protected, internalScope.protected);
+        }
+
+        return scope;
 
     };
 

@@ -129,7 +129,7 @@ describe('Element base', function() {
 
     });
 
-    it('с объектами корректно работает instanceof', function() {
+    it.skip('с объектами корректно работает instanceof', function() {
 
         var param = new Classes.Param();
 

@@ -265,63 +265,6 @@ var Classes = (function() {
     };
 
     /**
-     * Корректно привязывает контекст к функции
-     *
-     * @private
-     * @param {Object} props - Объект свойств класса
-     * @param {String} mod - Названия модификатора видимости
-     * @param {String} name - Имя функции
-     */
-    // _.bind = function(props, mod, name) {
-    //
-    //     var func = props[mod][name];
-    //
-    //     props[mod][name] = function() {
-    //         var res = func.apply(props.private, arguments);
-    //         return (res === props.private) ? props[mod] : res;
-    //     };
-    //
-    // };
-
-    /**
-     * Копирует свойства объекта
-     *
-     * @private
-     * @param {Object} body - Тело декларации класса
-     * @returns {Object}
-     */
-    _.copyProps = function(body) {
-
-        var props = {
-                public: null,
-                protected: null,
-                private: null
-            },
-            mod, key;
-
-        // Копируем свойства объекта из декларации
-        for (mod in props) {
-            props[mod] = _.clone(body[mod] || {});
-        }
-
-        // Устанавливаем контекст для всех функций
-        for (mod in props) {
-            for (key in props[mod]) {
-                if (_.isFunction(props[mod][key])) {
-                    _.bind(props, mod, key);
-                }
-            }
-        }
-
-        // Связываем области видимости
-        _.setProto(props.protected, props.public);
-        _.setProto(props.private, props.protected);
-
-        return props;
-
-    };
-
-    /**
      * Создаёт внутреннюю область видимости объекта
      *
      * @private
@@ -377,24 +320,25 @@ var Classes = (function() {
      *
      * @private
      * @param {Object} body - Тело декларации класса
+     * @param {Object} args - Аргументы, передаваемые в конструктор
      * @param {Boolean} isProtectedNeeded - Необходима область видимости protected в экземпляре
      * @returns {Object}
      */
-    _.construct = function(body, isProtectedNeeded) {
+    _.construct = function(body, args, isProtectedNeeded) {
 
         var baseBody = body.extend,
-            base = baseBody ? _.construct(baseBody, true) : { public: null };
+            base = baseBody ? _.construct(baseBody, [], true) : { public: {} };
 
         var internalScope = _.createInternalScope(body, base),
             externalScope = _.createExternalScope(internalScope, base, isProtectedNeeded);
 
         if (isProtectedNeeded) {
             if (_.isFunction(internalScope.protected.constructor)) {
-                internalScope.protected.constructor.apply(internalScope.private);
+                internalScope.protected.constructor.apply(internalScope.private, args);
             }
         } else {
             if (_.isFunction(internalScope.public.constructor)) {
-                internalScope.public.constructor.apply(internalScope.private);
+                internalScope.public.constructor.apply(internalScope.private, args);
             }
         }
 
@@ -416,8 +360,14 @@ var Classes = (function() {
     _.createPublicConstructor = function(body) {
 
         return function() {
-            var scope = _.construct(body);
+
+            var scope = _.construct(body, arguments),
+                proto = _.getProto(this);
+
+            _.assign(scope.public, proto);
+
             return scope.public;
+
         };
 
     };

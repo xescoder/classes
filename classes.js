@@ -163,6 +163,24 @@ var Classes = (function() {
     };
 
     /**
+     * Привязывает контекст к функции
+     *
+     * @private
+     * @param {Object} context - Привязываемый контекст
+     * @param {Object} fakeContext - Возвращаемый функцией контекст
+     * @param {Function} func - Функция
+     * @returns {Function}
+     */
+    _.bind = function(context, fakeContext, func) {
+
+        return function() {
+            var res = func.apply(context, arguments);
+            return res === context ? fakeContext : res;
+        };
+
+    };
+
+    /**
      * Копирует свойства объекта
      *
      * @private
@@ -177,6 +195,37 @@ var Classes = (function() {
             if (source.hasOwnProperty(key)) {
                 obj[key] = isFullClone ? _.clone(source[key]) : source[key];
             }
+        }
+
+        return obj;
+
+    };
+
+    /**
+     * Копирует свойства объекта с привязкой функций к контексту
+     *
+     * @private
+     * @param {Object} obj - Объект назначения
+     * @param {Object} source - Исходный объект
+     * @param {Object} context - Контекст для функций
+     * @param {Boolean} isFullClone - Полностью скопировать объект
+     * @returns {Object}
+     */
+    _.assignWithBind = function(obj, source, context, isFullClone) {
+
+        for (var key in source) {
+
+            if (source.hasOwnProperty(key)) {
+
+                if (_.isFunction(source[key])) {
+                    obj[key] = _.bind(context, obj, source[key]);
+                    continue;
+                }
+
+                obj[key] = isFullClone ? _.clone(source[key]) : source[key];
+
+            }
+
         }
 
         return obj;
@@ -223,16 +272,16 @@ var Classes = (function() {
      * @param {String} mod - Названия модификатора видимости
      * @param {String} name - Имя функции
      */
-    _.bind = function(props, mod, name) {
-
-        var func = props[mod][name];
-
-        props[mod][name] = function() {
-            var res = func.apply(props.private, arguments);
-            return (res === props.private) ? props[mod] : res;
-        };
-
-    };
+    // _.bind = function(props, mod, name) {
+    //
+    //     var func = props[mod][name];
+    //
+    //     props[mod][name] = function() {
+    //         var res = func.apply(props.private, arguments);
+    //         return (res === props.private) ? props[mod] : res;
+    //     };
+    //
+    // };
 
     /**
      * Копирует свойства объекта

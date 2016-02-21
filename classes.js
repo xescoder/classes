@@ -348,7 +348,6 @@ var Classes = (function() {
 
     /**
      * Создаёт внешнюю область видимости объекта
-     * Пока без bind
      *
      * @private
      * @param {Object} internalScope - Внутренняя область видимости объекта
@@ -361,15 +360,49 @@ var Classes = (function() {
         var scope = {};
 
         scope.public = Object.create(base.public);
-        _.assign(scope.public, internalScope.public);
+        _.assignWithBind(scope.public, internalScope.public, internalScope.private);
 
         if (isProtectedNeeded) {
             scope.protected = Object.create(base.protected || base.public);
             _.assign(scope.protected, scope.public);
-            _.assign(scope.protected, internalScope.protected);
+            _.assignWithBind(scope.protected, internalScope.protected, internalScope.private);
         }
 
         return scope;
+
+    };
+
+    /**
+     * Создаёт экземпляр класса
+     *
+     * @private
+     * @param {Object} body - Тело декларации класса
+     * @param {Boolean} isProtectedNeeded - Необходима область видимости protected в экземпляре
+     * @returns {Object}
+     */
+    _.construct = function(body, isProtectedNeeded) {
+
+        var baseBody = body.extend,
+            base = baseBody ? _.construct(baseBody, true) : { public: null };
+
+        var internalScope = _.createInternalScope(body, base),
+            externalScope = _.createExternalScope(internalScope, base, isProtectedNeeded);
+
+        if (isProtectedNeeded) {
+            if (_.isFunction(internalScope.protected.constructor)) {
+                internalScope.protected.constructor.apply(internalScope.private);
+            }
+        } else {
+            if (_.isFunction(internalScope.public.constructor)) {
+                internalScope.public.constructor.apply(internalScope.private);
+            }
+        }
+
+        for (var mod in internalScope) {
+            delete internalScope[mod].constructor;
+        }
+
+        return externalScope;
 
     };
 
@@ -383,21 +416,8 @@ var Classes = (function() {
     _.createPublicConstructor = function(body) {
 
         return function() {
-
-            var props = _.copyProps(body), mod;
-
-            if (_.isFunction(props.public.constructor)) {
-                props.public.constructor.apply(props.private, arguments);
-            }
-
-            for (mod in props) {
-                delete props[mod].constructor;
-            }
-
-            _.setProto(props.public, _.getProto(this));
-
-            return props.public;
-
+            var scope = _.construct(body);
+            return scope.public;
         };
 
     };

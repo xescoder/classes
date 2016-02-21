@@ -93,7 +93,7 @@ describe('Element base', function() {
 
     });
 
-    it.only('публичный интерфейс объекта неизменяем', function() {
+    it('публичный интерфейс объекта неизменяем', function() {
 
         var param = new Classes.Param();
 

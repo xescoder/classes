@@ -202,7 +202,8 @@ var Classes = (function() {
     };
 
     /**
-     * Копирует свойства объекта с привязкой функций к контексту
+     * Копирует свойства объекта
+     * Предназначен для внешнего интерфейса
      *
      * @private
      * @param {Object} obj - Объект назначения
@@ -211,18 +212,26 @@ var Classes = (function() {
      * @param {Boolean} isFullClone - Полностью скопировать объект
      * @returns {Object}
      */
-    _.assignWithBind = function(obj, source, context, isFullClone) {
+    _.assignExternalInterface = function(obj, source, context, isFullClone) {
 
-        for (var key in source) {
+        var ignore = ['constructor'], key, value;
 
-            if (source.hasOwnProperty(key)) {
+        for (key in source) {
+
+            if (source.hasOwnProperty(key) && !~ignore.indexOf(key)) {
 
                 if (_.isFunction(source[key])) {
-                    obj[key] = _.bind(context, obj, source[key]);
-                    continue;
+                    value = _.bind(context, obj, source[key]);
+                } else {
+                    value = isFullClone ? _.clone(source[key]) : source[key];
                 }
 
-                obj[key] = isFullClone ? _.clone(source[key]) : source[key];
+                Object.defineProperty(obj, key, {
+                    configurable: false,
+                    enumerable: true,
+                    writable: false,
+                    value: value
+                });
 
             }
 
@@ -303,12 +312,12 @@ var Classes = (function() {
         var scope = {};
 
         scope.public = Object.create(base.public);
-        _.assignWithBind(scope.public, internalScope.public, internalScope.private);
+        _.assignExternalInterface(scope.public, internalScope.public, internalScope.private);
 
         if (isProtectedNeeded) {
             scope.protected = Object.create(base.protected || base.public);
             _.assign(scope.protected, scope.public);
-            _.assignWithBind(scope.protected, internalScope.protected, internalScope.private);
+            _.assignExternalInterface(scope.protected, internalScope.protected, internalScope.private);
         }
 
         return scope;

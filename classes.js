@@ -335,7 +335,7 @@ var Classes = (function() {
      */
     _.construct = function(body, args, isProtectedNeeded) {
 
-        var baseBody = body.extend,
+        var baseBody = body.extend && body.extend.getBody(),
             base = baseBody ? _.construct(baseBody, [], true) : { public: {} };
 
         var internalScope = _.createInternalScope(body, base),
@@ -368,7 +368,7 @@ var Classes = (function() {
      */
     _.createPublicConstructor = function(body) {
 
-        return function() {
+        var Constructor = function() {
 
             var scope = _.construct(body, arguments),
                 proto = _.getProto(this);
@@ -378,6 +378,12 @@ var Classes = (function() {
             return scope.public;
 
         };
+
+        Constructor.getBody = function() {
+            return body;
+        };
+
+        return Constructor;
 
     };
 

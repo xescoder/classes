@@ -1,4 +1,4 @@
-describe('Inherit', function() {
+describe.only('Inherit', function() {
 
      var Classes;
 
@@ -50,19 +50,19 @@ describe('Inherit', function() {
 
             public: {
 
-                callPublicMethod: function() {
-                    return this.__base.getAge();
+                getPublicBaseMethod: function() {
+                    return this.__base.getAge;
                 },
 
-                callProtectedMethid: function() {
-                    return this.__base.setAge(11);
+                getProtectedBaseMethod: function() {
+                    return this.__base.setAge;
                 },
 
-                callPrivateMethod: function() {
-                    return this.__base._getName();
+                getPrivateBaseMethod: function() {
+                    return this.__base._getName;
                 },
 
-                getPrivateField: function() {
+                getPrivateBaseField: function() {
                     return this.__base._name;
                 }
 
@@ -82,6 +82,26 @@ describe('Inherit', function() {
         assert.property(test, 'getName');
         assert.isFunction(test.getName);
 
+    });
+
+    it('y наследника есть доступ к публичным методам базового класса', function() {
+        var test = new Classes.Test();
+        assert.isFunction(test.getPublicBaseMethod());
+    });
+
+    it('y наследника есть доступ к защищённым методам базового класса', function() {
+        var test = new Classes.Test();
+        assert.isFunction(test.getProtectedBaseMethod());
+    });
+
+    it('у наследника нет доступа к приватным методам базового класса', function() {
+        var test = new Classes.Test();
+        assert.isUndefined(test.getPrivateBaseMethod());
+    });
+
+    it('у наследника нет доступа к приватным полям базового класса', function() {
+        var test = new Classes.Test();
+        assert.isUndefined(test.getPrivateBaseField());
     });
 
 });

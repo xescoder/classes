@@ -283,9 +283,10 @@ var Classes = (function() {
      */
     _.createInternalScope = function(body, base) {
 
-        var scope = {};
+        var scope = {},
+            base = base.protected || base.public;
 
-        scope.public = Object.create(base.protected || base.public);
+        scope.public = Object.create(base);
         _.assign(scope.public, body.public || {});
 
         scope.protected = Object.create(scope.public);
@@ -293,6 +294,8 @@ var Classes = (function() {
 
         scope.private = Object.create(scope.protected);
         _.assign(scope.private, body.private || {}, true);
+
+        scope.private.__base = base;
 
         return scope;
 

@@ -1,4 +1,4 @@
-describe.only('Inherit', function() {
+describe('Inherit', function() {
 
      var Classes;
 

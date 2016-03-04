@@ -363,6 +363,27 @@ var Classes = (function() {
     };
 
     /**
+     * Создаёт статичную область видимости класса
+     *
+     * @private
+     * @param {Object} body - Тело декларации класса
+     * @returns {Object}
+     */
+    _.createStaticScope = function(body) {
+
+        var scope = {};
+
+        scope.public = {};
+        scope.private = Object.create(scope.public);
+
+        _.assign(scope.private, body.staticPrivate || {}, true);
+        _.assignExternalInterface(scope.public, body.staticPublic || {}, scope.private);
+
+        return scope;
+
+    };
+
+    /**
      * Создаёт публичный конструктор класса
      *
      * @private
@@ -373,18 +394,17 @@ var Classes = (function() {
 
         var Constructor = function() {
 
-            var scope = _.construct(body, arguments),
-                proto = _.getProto(this);
+                var scope = _.construct(body, arguments),
+                    proto = _.getProto(this);
 
-            _.assign(scope.public, proto);
+                _.assign(scope.public, proto);
 
-            return scope.public;
+                return scope.public;
 
-        };
+            },
+            staticScope = _.createStaticScope(body);
 
-        Constructor.getBody = function() {
-            return body;
-        };
+        _.assign(Constructor, staticScope.public);
 
         return Constructor;
 

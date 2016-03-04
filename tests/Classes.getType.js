@@ -87,7 +87,7 @@ describe('Classes.getType', function() {
         var value = new Classes.Test(),
             type = Classes.getType(value);
 
-        assert.strictEqual(type, 'Test');
+        assert.strictEqual(type, 'Classes.Test');
 
     });
 

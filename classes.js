@@ -26,8 +26,14 @@ var Classes = (function() {
         var key = 'typeRegExp',
             typeRegExp = _.getCache(key) || _.setCache(key, /object|function/);
 
-        if (typeRegExp.test(typeof(value)) && value.__type__) {
-            return value.__type__;
+        if (typeRegExp.test(typeof(value))) {
+            if (value.__type__) {
+                return value.__type__;
+            }
+
+            if (typeof(value.constructor === 'function') && value.constructor.getFullName) {
+                return value.constructor.getFullName();
+            }
         }
 
         return Object.prototype
@@ -422,10 +428,9 @@ var Classes = (function() {
 
         var Constructor = function() {
 
-                var scope = _.construct(body, arguments),
-                    proto = _.getProto(this);
+                var scope = _.construct(body, arguments);
 
-                _.assign(scope.public, proto);
+                scope.public.constructor = Constructor;
 
                 return scope.public;
 

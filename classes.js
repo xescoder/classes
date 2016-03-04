@@ -163,6 +163,85 @@ var Classes = (function() {
     };
 
     /**
+     * Привязывает контекст к функции
+     *
+     * @private
+     * @param {Object} context - Привязываемый контекст
+     * @param {Object} fakeContext - Возвращаемый функцией контекст
+     * @param {Function} func - Функция
+     * @returns {Function}
+     */
+    _.bind = function(context, fakeContext, func) {
+
+        return function() {
+            var res = func.apply(context, arguments);
+            return res === context ? fakeContext : res;
+        };
+
+    };
+
+    /**
+     * Копирует свойства объекта
+     *
+     * @private
+     * @param {Object} obj - Объект назначения
+     * @param {Object} source - Исходный объект
+     * @param {Boolean} isFullClone - Полностью скопировать объект
+     * @returns {Object}
+     */
+    _.assign = function(obj, source, isFullClone) {
+
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                obj[key] = isFullClone ? _.clone(source[key]) : source[key];
+            }
+        }
+
+        return obj;
+
+    };
+
+    /**
+     * Копирует свойства объекта
+     * Предназначен для внешнего интерфейса
+     *
+     * @private
+     * @param {Object} obj - Объект назначения
+     * @param {Object} source - Исходный объект
+     * @param {Object} context - Контекст для функций
+     * @param {Boolean} isFullClone - Полностью скопировать объект
+     * @returns {Object}
+     */
+    _.assignExternalInterface = function(obj, source, context, isFullClone) {
+
+        var ignore = ['constructor'], key, value;
+
+        for (key in source) {
+
+            if (source.hasOwnProperty(key) && !~ignore.indexOf(key)) {
+
+                if (_.isFunction(source[key])) {
+                    value = _.bind(context, obj, source[key]);
+                } else {
+                    value = isFullClone ? _.clone(source[key]) : source[key];
+                }
+
+                Object.defineProperty(obj, key, {
+                    configurable: false,
+                    enumerable: true,
+                    writable: false,
+                    value: value
+                });
+
+            }
+
+        }
+
+        return obj;
+
+    };
+
+    /**
      * Возвращает true если имя класса недопустимо
      *
      * @private
@@ -195,59 +274,91 @@ var Classes = (function() {
     };
 
     /**
-     * Корректно привязывает контекст к функции
+     * Создаёт внутреннюю область видимости объекта
      *
      * @private
-     * @param {Object} props - Объект свойств класса
-     * @param {String} mod - Названия модификатора видимости
-     * @param {String} name - Имя функции
+     * @param {Object} body - Тело декларации класса
+     * @param {Object} base - Экземпляр базового класса
+     * @returns {Object}
      */
-    _.bind = function(props, mod, name) {
+    _.createInternalScope = function(body, base) {
 
-        var func = props[mod][name];
+        var scope = {},
+            base = base.protected || base.public;
 
-        props[mod][name] = function() {
-            var res = func.apply(props.private, arguments);
-            return (res === props.private) ? props[mod] : res;
-        };
+        scope.public = Object.create(base);
+        _.assign(scope.public, body.public || {});
+
+        scope.protected = Object.create(scope.public);
+        _.assign(scope.protected, body.protected || {});
+
+        scope.private = Object.create(scope.protected);
+        _.assign(scope.private, body.private || {}, true);
+
+        scope.private.__base = base;
+
+        return scope;
 
     };
 
     /**
-     * Копирует свойства объекта
+     * Создаёт внешнюю область видимости объекта
+     *
+     * @private
+     * @param {Object} internalScope - Внутренняя область видимости объекта
+     * @param {Object} base - Экземпляр базового класса
+     * @param {Boolean} isProtectedNeeded - Необходим модификатор protected
+     * @returns {Object}
+     */
+    _.createExternalScope = function(internalScope, base, isProtectedNeeded) {
+
+        var scope = {};
+
+        scope.public = Object.create(base.public);
+        _.assignExternalInterface(scope.public, internalScope.public, internalScope.private);
+
+        if (isProtectedNeeded) {
+            scope.protected = Object.create(base.protected || base.public);
+            _.assign(scope.protected, scope.public);
+            _.assignExternalInterface(scope.protected, internalScope.protected, internalScope.private);
+        }
+
+        return scope;
+
+    };
+
+    /**
+     * Создаёт экземпляр класса
      *
      * @private
      * @param {Object} body - Тело декларации класса
+     * @param {Object} args - Аргументы, передаваемые в конструктор
+     * @param {Boolean} isProtectedNeeded - Необходима область видимости protected в экземпляре
      * @returns {Object}
      */
-    _.copyProps = function(body) {
+    _.construct = function(body, args, isProtectedNeeded) {
 
-        var props = {
-                public: null,
-                protected: null,
-                private: null
-            },
-            mod, key;
+        var baseBody = body.extend && body.extend.getBody(),
+            base = baseBody ? _.construct(baseBody, [], true) : { public: {} };
 
-        // Копируем свойства объекта из декларации
-        for (mod in props) {
-            props[mod] = _.clone(body[mod] || {});
-        }
+        var internalScope = _.createInternalScope(body, base),
+            externalScope = _.createExternalScope(internalScope, base, isProtectedNeeded);
 
-        // Устанавливаем контекст для всех функций
-        for (mod in props) {
-            for (key in props[mod]) {
-                if (_.isFunction(props[mod][key])) {
-                    _.bind(props, mod, key);
-                }
+        if (isProtectedNeeded) {
+            if (_.isFunction(internalScope.protected.constructor)) {
+                internalScope.protected.constructor.apply(internalScope.private, args);
+            }
+        } else {
+            if (_.isFunction(internalScope.public.constructor)) {
+                internalScope.public.constructor.apply(internalScope.private, args);
             }
         }
 
-        // Связываем области видимости
-        _.setProto(props.protected, props.public);
-        _.setProto(props.private, props.protected);
+        for (var mod in internalScope) {
+            delete internalScope[mod].constructor;
+        }
 
-        return props;
+        return externalScope;
 
     };
 
@@ -260,23 +371,22 @@ var Classes = (function() {
      */
     _.createPublicConstructor = function(body) {
 
-        return function() {
+        var Constructor = function() {
 
-            var props = _.copyProps(body), mod;
+            var scope = _.construct(body, arguments),
+                proto = _.getProto(this);
 
-            if (_.isFunction(props.public.constructor)) {
-                props.public.constructor.apply(props.private, arguments);
-            }
+            _.assign(scope.public, proto);
 
-            for (mod in props) {
-                delete props[mod].constructor;
-            }
-
-            _.setProto(props.public, _.getProto(this));
-
-            return props.public;
+            return scope.public;
 
         };
+
+        Constructor.getBody = function() {
+            return body;
+        };
+
+        return Constructor;
 
     };
 

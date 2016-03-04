@@ -1,4 +1,4 @@
-describe('Classes._copyProps', function() {
+describe.skip('Classes._copyProps', function() {
 
     var Classes;
 

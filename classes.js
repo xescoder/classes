@@ -363,6 +363,55 @@ var Classes = (function() {
     };
 
     /**
+     * Добавляет системные статические методы
+     *
+     * @private
+     * @param {Object} body - Тело декларации класса
+     * @returns {Object}
+     */
+    _.addSystemStaticMethods = function(name, body) {
+
+        var public = body.staticPublic = body.staticPublic || {},
+            private = body.staticPrivate = body.staticPrivate || {};
+
+        // Доступ к декларации класса
+        private.__body = body;
+        public.getBody = function() { return this.__body; };
+
+        // Доступ к базовому классу
+        private.__extend = body.extend;
+        public.getExtend = function() { return this.__extend; };
+
+        // Полное имя класса
+        private.__fullName = 'Classes.' + name;
+        public.getFullName = function() { return this.__fullName; };
+
+        return body;
+
+    }
+
+    /**
+     * Создаёт статичную область видимости класса
+     *
+     * @private
+     * @param {Object} body - Тело декларации класса
+     * @returns {Object}
+     */
+    _.createStaticScope = function(body) {
+
+        var scope = {};
+
+        scope.public = {};
+        scope.private = Object.create(scope.public);
+
+        _.assign(scope.private, body.staticPrivate || {});
+        _.assignExternalInterface(scope.public, body.staticPublic || {}, scope.private);
+
+        return scope;
+
+    };
+
+    /**
      * Создаёт публичный конструктор класса
      *
      * @private
@@ -373,18 +422,17 @@ var Classes = (function() {
 
         var Constructor = function() {
 
-            var scope = _.construct(body, arguments),
-                proto = _.getProto(this);
+                var scope = _.construct(body, arguments),
+                    proto = _.getProto(this);
 
-            _.assign(scope.public, proto);
+                _.assign(scope.public, proto);
 
-            return scope.public;
+                return scope.public;
 
-        };
+            },
+            staticScope = _.createStaticScope(body);
 
-        Constructor.getBody = function() {
-            return body;
-        };
+        _.assign(Constructor, staticScope.public);
 
         return Constructor;
 
@@ -397,6 +445,7 @@ var Classes = (function() {
      * @param {Object} body - Тело класса
      */
     $.decl = function(name, body) {
+        body = _.addSystemStaticMethods(name, body);
         _.createClass(name, _.createPublicConstructor(body));
     };
 

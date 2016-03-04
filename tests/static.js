@@ -1,4 +1,4 @@
-describe.only('Static', function() {
+describe('Static', function() {
 
      var Classes;
 

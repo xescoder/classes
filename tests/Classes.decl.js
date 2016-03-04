@@ -1,4 +1,4 @@
-describe('Classes.decl', function() {
+describe.skip('Classes.decl', function() {
 
     var Classes;
 

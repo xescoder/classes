@@ -1,4 +1,4 @@
-describe('Classes._getProto', function() {
+describe.skip('Classes._getProto', function() {
 
     var Classes,
         obj, Constructor, Proto;

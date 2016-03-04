@@ -1,4 +1,4 @@
-describe('Classes._setCache', function() {
+describe.skip('Classes._setCache', function() {
 
     var Classes;
 

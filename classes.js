@@ -22,18 +22,12 @@ var Classes = (function() {
             return 'Null';
         }
 
-        // Ленивая инициализация regexp для определения типа
-        var key = 'typeRegExp',
-            typeRegExp = _.getCache(key) || _.setCache(key, /object|function/);
+        if (_.isFunction(value) && _.isFunction(value.getType)) {
+            return value.getType();
+        }
 
-        if (typeRegExp.test(typeof(value))) {
-            if (value.__type__) {
-                return value.__type__;
-            }
-
-            if (typeof(value.constructor === 'function') && value.constructor.getFullName) {
-                return value.constructor.getFullName();
-            }
+        if (_.isObject(value) && _.isFunction(value.constructor) && _.isFunction(value.constructor.getFullName)) {
+            return value.constructor.getFullName();
         }
 
         return Object.prototype
@@ -93,7 +87,7 @@ var Classes = (function() {
      * Включает тестовый режим работы
      */
     $.enableTestMode = function() {
-        _.setProto($, _);
+        $.__proto__ = _;
     };
 
     /**
@@ -119,50 +113,14 @@ var Classes = (function() {
     };
 
     /**
-     * Возвращает прототип объекта
+     * Возвращает true, если переданное значение является объектом
      *
      * @private
-     * @param {Object} obj - Объект
-     * @returns {Object}
-     */
-    _.getProto = function(obj) {
-        return obj.__proto__;
-    };
-
-    /**
-     * Устанавливает прототип объекту
-     *
-     * @private
-     * @param {Object} obj - Объект
-     * @param {Object} proto - Прототип
-     */
-    _.setProto = function(obj, proto) {
-        obj.__proto__ = proto;
-    };
-
-    /**
-     * Возвращает значение из внутреннего кэша по ключу
-     *
-     * @private
-     * @param {String} key - Ключ
-     * @returns {Mixed}
-     */
-    _.getCache = function(key) {
-        return _.cache && _.cache[key];
-    };
-
-    /**
-     * Сохраняет значение во внутренний кэш и возвращает его
-     *
-     * @private
-     * @param {String} key - Ключ
      * @param {Mixed} value - Значение
-     * @returns {Mixed}
+     * @returns {Boolean}
      */
-    _.setCache = function(key, value) {
-        _.cache || (_.cache = {});
-        _.cache[key] = value;
-        return _.cache[key];
+    _.isObject = function(value) {
+        return value !== null && typeof(value) === 'object';
     };
 
     /**
@@ -294,38 +252,6 @@ var Classes = (function() {
     };
 
     /**
-     * Возвращает true если имя класса недопустимо
-     *
-     * @private
-     * @param {Object} obj - Объект, в котором будет сохранён класс
-     * @param {String} name - Имя класса
-     * @returns {Boolean}
-     */
-    _.isForbiddenName = function(obj, name) {
-        return obj.hasOwnProperty(name);
-    };
-
-    /**
-     * Создаёт новый класс
-     *
-     * @private
-     * @param {String} name - Имя класса
-     * @param {Function} constructor - Конструктор класса
-     */
-    _.createClass = function(name, constructor) {
-
-        if (_.isForbiddenName($, name)) {
-            throw new Error('Classes. Не удалось создать класс: имя ' + name + ' уже занято.');
-        }
-
-        constructor.__type__ = $.TYPES.CLASS;
-        constructor.prototype.__type__ = name;
-
-        $[name] = constructor;
-
-    };
-
-    /**
      * Создаёт внутреннюю область видимости объекта
      *
      * @private
@@ -438,9 +364,13 @@ var Classes = (function() {
         private.__fullName = 'Classes.' + name;
         public.getFullName = function() { return this.__fullName; };
 
+        // Тип
+        private.__type = $.TYPES.CLASS;
+        public.getType = function() { return this.__type; }
+
         return body;
 
-    }
+    };
 
     /**
      * Создаёт статичную область видимости класса
@@ -496,8 +426,14 @@ var Classes = (function() {
      * @param {Object} body - Тело класса
      */
     $.decl = function(name, body) {
+
+        if ($.hasOwnProperty(name)) {
+            throw new Error('Classes. Не удалось создать класс: имя ' + name + ' уже занято.');
+        }
+
         body = _.addSystemStaticMethods(name, body);
-        _.createClass(name, _.createPublicConstructor(body));
+        $[name] = _.createPublicConstructor(body);
+
     };
 
     return $;

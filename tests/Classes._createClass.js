@@ -1,4 +1,4 @@
-describe('Classes._createClass', function() {
+describe.skip('Classes._createClass', function() {
 
     var Classes;
 

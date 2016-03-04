@@ -1,4 +1,4 @@
-describe('Classes._isForbiddenName', function() {
+describe.skip('Classes._isForbiddenName', function() {
 
     var Classes;
 

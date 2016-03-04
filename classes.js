@@ -7,6 +7,7 @@ var Classes = (function() {
      * Перечисление поддерживаемых типов классов
      */
     $.TYPES = {
+        NAMESPACE: 'Namespace',
         CLASS: 'Class'
     };
 
@@ -26,8 +27,16 @@ var Classes = (function() {
             return value.getType();
         }
 
-        if (_.isObject(value) && _.isFunction(value.constructor) && _.isFunction(value.constructor.getFullName)) {
-            return value.constructor.getFullName();
+        if (_.isObject(value)) {
+
+            if (_.isFunction(value.getType)) {
+                return value.getType();
+            }
+
+            if (_.isFunction(value.constructor) && _.isFunction(value.constructor.getFullName)) {
+                return value.constructor.getFullName();
+            }
+
         }
 
         return Object.prototype
@@ -344,10 +353,11 @@ var Classes = (function() {
      * Добавляет системные статические методы
      *
      * @private
+     * @param {String} fullName - Полное имя класса
      * @param {Object} body - Тело декларации класса
      * @returns {Object}
      */
-    _.addSystemStaticMethods = function(name, body) {
+    _.addSystemStaticMethods = function(fullName, body) {
 
         var public = body.staticPublic = body.staticPublic || {},
             private = body.staticPrivate = body.staticPrivate || {};
@@ -361,7 +371,7 @@ var Classes = (function() {
         public.getExtend = function() { return this.__extend; };
 
         // Полное имя класса
-        private.__fullName = 'Classes.' + name;
+        private.__fullName = fullName;
         public.getFullName = function() { return this.__fullName; };
 
         // Тип
@@ -420,21 +430,111 @@ var Classes = (function() {
     };
 
     /**
-     * Декларирует новый класс
-     *
-     * @param {String} name - Имя класса
-     * @param {Object} body - Тело класса
+     * Прототип пространства имён
      */
-    $.decl = function(name, body) {
+    _.namespaceProto = {
 
-        if ($.hasOwnProperty(name)) {
-            throw new Error('Classes. Не удалось создать класс: имя ' + name + ' уже занято.');
+        /**
+         * Возвращает тип пространства имён
+         *
+         * @returns {String}
+         */
+        getType: function() {
+            return $.TYPES.NAMESPACE;
+        },
+
+        /**
+         * Декларирует новое пространство имён
+         *
+         * @param {String} name - Имя пространства имён
+         * @returns {Object}
+         */
+        name: function(name) {
+            return _.rname(this, name);
+        },
+
+        /**
+         * Декларирует новый класс
+         *
+         * @param {String} name - Имя класса
+         * @param {Object} body - Тело декларации класса
+         * @returns {Object}
+         */
+        decl: function(name, body) {
+
+            var fullName = this.getFullName() + '.' + name;
+
+            if (this.hasOwnProperty(name)) {
+                throw new Error('Classes. Не удалось создать класс: имя ' + fullName + ' уже занято.');
+            }
+
+            body = _.addSystemStaticMethods(fullName, body);
+            this[name] = _.createPublicConstructor(body);
+
+            return this[name];
+
+        }
+    };
+
+    /**
+     * Создаёт пространство имён
+     *
+     * @param {Object} base - Базовое пространство имён
+     * @param {String} name - Создаваемое пространство имён
+     * @returns {Object}
+     */
+    _.name = function(base, name) {
+
+        var fullName = base.getFullName() + '.' + name;
+
+        if (base !== $ && base.getType() !== $.TYPES.NAMESPACE) {
+            throw new Error('Classes. ' + base.getFullName() + ' не является пространством имён.');
         }
 
-        body = _.addSystemStaticMethods(name, body);
-        $[name] = _.createPublicConstructor(body);
+        if (base.hasOwnProperty(name)) {
+            throw new Error('Classes. Не удалось создать пространство имён: имя ' + fullName + ' уже занято.');
+        }
+
+        var namespace = base[name] = Object.create(_.namespaceProto);
+
+        namespace.getFullName = function() {
+            return fullName;
+        };
+
+        return namespace;
 
     };
+
+    /**
+     * Рекурсивно создаёт пространство имён
+     *
+     * @param {Object} base - Базовое пространство имён
+     * @param {String} name - Создаваемое пространство имён
+     * @returns {Object}
+     */
+    _.rname = function(base, name) {
+
+        var names = name.split('.'), i;
+
+        for(i = 0; i < names.length; i++) {
+            base = _.name(base, names[i]);
+        }
+
+        return base;
+
+    };
+
+    /**
+     * Возвращает полное имя корневого пространства имён
+     *
+     * @returns {String}
+     */
+    $.getFullName = function() {
+        return 'Classes';
+    };
+
+    $.name = _.namespaceProto.name;
+    $.decl = _.namespaceProto.decl;
 
     return $;
 

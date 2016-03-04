@@ -6,6 +6,8 @@ describe('Classes.getType', function() {
 
         Classes = getClasses();
 
+        Classes.name('Namespace');
+
         Classes.decl('Test', {
             public: { constructor: function() {} }
         });
@@ -79,6 +81,15 @@ describe('Classes.getType', function() {
             type = Classes.getType(value);
 
         assert.strictEqual(type, 'Class');
+
+    });
+
+    it('должен возвращать Namespace для пространства имён', function() {
+
+        var value = Classes.Namespace,
+            type = Classes.getType(value);
+
+        assert.strictEqual(type, 'Namespace');
 
     });
 

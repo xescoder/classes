@@ -44,6 +44,52 @@ var Classes = (function() {
     };
 
     /**
+     * Проверяет принадлежность типу
+     *
+     * @param {Object} obj - Экземпляр типа
+     * @param {Function} Type - Тип
+     * @returns {Boolean}
+     */
+    $.is = function(obj, Type) {
+
+        if (!obj || typeof(obj) !== 'object' || typeof(obj.constructor) !== 'function') {
+            return false;
+        }
+
+        if (typeof(Type) !== 'function') {
+            return false;
+        }
+
+        if (obj.constructor === Type) {
+            return true;
+        }
+
+        if (obj instanceof Type) {
+            return true;
+        }
+
+        if (typeof(Type.getFullName) !== 'function') {
+            return false;
+        }
+
+        var objType = obj.constructor,
+            typeFullName = Type.getFullName();
+
+        do {
+            if (typeof(objType.getFullName) !== 'function') {
+                return false;
+            }
+
+            if (objType.getFullName() === typeFullName) {
+                return true;
+            }
+        } while (objType.getExtend && (objType = objType.getExtend()));
+
+        return false;
+
+    };
+
+    /**
      * Включает тестовый режим работы
      */
     $.enableTestMode = function() {

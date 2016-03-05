@@ -3,112 +3,8 @@ var Classes = (function() {
     var $ = {}, // public fields
         _ = {}; // private fields
 
-    /**
-     * Перечисление поддерживаемых типов классов
-     */
-    $.TYPES = {
-        NAMESPACE: 'Namespace',
-        CLASS: 'Class'
-    };
 
-    /**
-     * Возвращает название типа
-     *
-     * @param {Mixed} value - Значение
-     * @returns {String}
-     */
-    $.getType = function(value) {
-
-        if (value === null) {
-            return 'Null';
-        }
-
-        if (_.isFunction(value) && _.isFunction(value.getType)) {
-            return value.getType();
-        }
-
-        if (_.isObject(value)) {
-
-            if (_.isFunction(value.getType)) {
-                return value.getType();
-            }
-
-            if (_.isFunction(value.constructor) && _.isFunction(value.constructor.getFullName)) {
-                return value.constructor.getFullName();
-            }
-
-        }
-
-        return Object.prototype
-            .toString
-            .call(value)
-            .slice(8, -1);
-
-    };
-
-    /**
-     * Проверяет принадлежность типу
-     *
-     * @param {Object} obj - Экземпляр типа
-     * @param {Function} Type - Тип
-     * @returns {Boolean}
-     */
-    $.is = function(obj, Type) {
-
-        if (!obj || typeof(obj) !== 'object' || typeof(obj.constructor) !== 'function') {
-            return false;
-        }
-
-        if (typeof(Type) !== 'function') {
-            return false;
-        }
-
-        if (obj.constructor === Type) {
-            return true;
-        }
-
-        if (obj instanceof Type) {
-            return true;
-        }
-
-        if (typeof(Type.getFullName) !== 'function') {
-            return false;
-        }
-
-        var objType = obj.constructor,
-            typeFullName = Type.getFullName();
-
-        do {
-            if (typeof(objType.getFullName) !== 'function') {
-                return false;
-            }
-
-            if (objType.getFullName() === typeFullName) {
-                return true;
-            }
-        } while (objType.getExtend && (objType = objType.getExtend()));
-
-        return false;
-
-    };
-
-    /**
-     * Включает тестовый режим работы
-     */
-    $.enableTestMode = function() {
-        $.__proto__ = _;
-    };
-
-    /**
-     * Устанавливает значение приватного поля Classes
-     *
-     * @private
-     * @param {String} prop - Название приватного поля
-     * @param {Mixes} value - Устанавливаемое значение
-     */
-    _.setPrivate = function(prop, value) {
-        _[prop] = value;
-    };
+    /* --------------------------  СЛУЖЕБНЫЕ ВНУТРЕННИЕ МЕТОДЫ  ------------------------------ */
 
     /**
      * Возвращает true, если переданное значение является функцией
@@ -259,6 +155,20 @@ var Classes = (function() {
         return obj;
 
     };
+
+    /**
+     * Устанавливает значение приватного поля Classes
+     *
+     * @private
+     * @param {String} prop - Название приватного поля
+     * @param {Mixes} value - Устанавливаемое значение
+     */
+    _.setPrivate = function(prop, value) {
+        _[prop] = value;
+    };
+
+
+    /* ------------------------------------------------  ФАБРИКИ  ---------------------------------------------- */
 
     /**
      * Создаёт внутреннюю область видимости объекта
@@ -429,6 +339,9 @@ var Classes = (function() {
 
     };
 
+
+    /* --------------------------------------  ПРОСТРАНСТВА ИМЁН  ------------------------------------- */
+
     /**
      * Прототип пространства имён
      */
@@ -524,6 +437,98 @@ var Classes = (function() {
 
     };
 
+
+    /* --------------------------------  ПУБЛИЧНЫЙ ИНТЕРФЕЙС CLASSES  ------------------------------- */
+
+    /**
+     * Перечисление поддерживаемых типов классов
+     */
+    $.TYPES = {
+        NAMESPACE: 'Namespace',
+        CLASS: 'Class'
+    };
+
+    /**
+     * Возвращает название типа
+     *
+     * @param {Mixed} value - Значение
+     * @returns {String}
+     */
+    $.getType = function(value) {
+
+        if (value === null) {
+            return 'Null';
+        }
+
+        if (_.isFunction(value) && _.isFunction(value.getType)) {
+            return value.getType();
+        }
+
+        if (_.isObject(value)) {
+
+            if (_.isFunction(value.getType)) {
+                return value.getType();
+            }
+
+            if (_.isFunction(value.constructor) && _.isFunction(value.constructor.getFullName)) {
+                return value.constructor.getFullName();
+            }
+
+        }
+
+        return Object.prototype
+            .toString
+            .call(value)
+            .slice(8, -1);
+
+    };
+
+    /**
+     * Проверяет принадлежность типу
+     *
+     * @param {Object} obj - Экземпляр типа
+     * @param {Function} Type - Тип
+     * @returns {Boolean}
+     */
+    $.is = function(obj, Type) {
+
+        if (!obj || typeof(obj) !== 'object' || typeof(obj.constructor) !== 'function') {
+            return false;
+        }
+
+        if (typeof(Type) !== 'function') {
+            return false;
+        }
+
+        if (obj.constructor === Type) {
+            return true;
+        }
+
+        if (obj instanceof Type) {
+            return true;
+        }
+
+        if (typeof(Type.getFullName) !== 'function') {
+            return false;
+        }
+
+        var objType = obj.constructor,
+            typeFullName = Type.getFullName();
+
+        do {
+            if (typeof(objType.getFullName) !== 'function') {
+                return false;
+            }
+
+            if (objType.getFullName() === typeFullName) {
+                return true;
+            }
+        } while (objType.getExtend && (objType = objType.getExtend()));
+
+        return false;
+
+    };
+
     /**
      * Возвращает полное имя корневого пространства имён
      *
@@ -531,6 +536,13 @@ var Classes = (function() {
      */
     $.getFullName = function() {
         return 'Classes';
+    };
+
+    /**
+     * Включает тестовый режим работы
+     */
+    $.enableTestMode = function() {
+        $.__proto__ = _;
     };
 
     $.name = _.namespaceProto.name;

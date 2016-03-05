@@ -1,8 +1,8 @@
 describe('Inherit', function() {
 
-     var Classes;
+    var Classes;
 
-     before(function() {
+    before(function() {
 
         Classes = getClasses();
 
@@ -70,7 +70,7 @@ describe('Inherit', function() {
 
         });
 
-     });
+    });
 
     it('публичный интерфейс экземпляра наследуюется от базового класса', function() {
 

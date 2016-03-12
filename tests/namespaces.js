@@ -1,4 +1,4 @@
-describe.only('Namespaces', function() {
+describe('Namespaces', function() {
 
     var Classes;
 

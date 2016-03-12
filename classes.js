@@ -167,6 +167,31 @@ var Classes = (function() {
         _[prop] = value;
     };
 
+    /**
+     * Проверяет, что Child унаследован от Parent
+     *
+     * @private
+     * @param {Function} Child - дочерний класс
+     * @param {Function} Parent - родительский класс
+     */
+    _.isExtend = function(Child, Parent) {
+
+        var parentFullName = Parent.getFullName();
+
+        while (Child && Child.getFullName) {
+
+            if (Child.getFullName() === parentFullName) {
+                return true;
+            }
+
+            Child = Child.getExtend();
+
+        }
+
+        return false;
+
+    };
+
 
     /* ------------------------------------------------  ФАБРИКИ  ---------------------------------------------- */
 
@@ -287,6 +312,24 @@ var Classes = (function() {
         // Тип
         private.__type = $.TYPES.CLASS;
         public.getType = function() { return this.__type; }
+
+        // Проверка наследственности
+        private.__extends = {};
+        public.is = function(Parent) {
+
+            if (!Parent.getFullName) {
+                return false;
+            }
+
+            var parentFullName = Parent.getFullName();
+
+            if (this.__extends.hasOwnProperty(parentFullName)) {
+                return this.__extends[parentFullName];
+            }
+
+            return this.__extends[parentFullName] = _.isExtend(this, Parent);
+
+        };
 
         return body;
 
@@ -508,24 +551,11 @@ var Classes = (function() {
             return true;
         }
 
-        if (typeof(Type.getFullName) !== 'function') {
+        if (typeof(obj.constructor.is) !== 'function') {
             return false;
         }
 
-        var objType = obj.constructor,
-            typeFullName = Type.getFullName();
-
-        do {
-            if (typeof(objType.getFullName) !== 'function') {
-                return false;
-            }
-
-            if (objType.getFullName() === typeFullName) {
-                return true;
-            }
-        } while (objType.getExtend && (objType = objType.getExtend()));
-
-        return false;
+        return obj.constructor.is(Type);
 
     };
 

@@ -120,7 +120,7 @@ var Classes = (function() {
         var ignore = ['constructor'], key, value;
 
         for (key in source) {
-            if (source.hasOwnProperty(key) && (ignore.indexOf(key) > -1)) {
+            if (source.hasOwnProperty(key) && (ignore.indexOf(key) === -1)) {
                 if (_.isFunction(source[key])) {
                     value = _.bind(context, obj, source[key]);
                 } else {

@@ -1,8 +1,6 @@
 var Classes = (function() {
-
     var $ = {}, // public fields
         _ = {}; // private fields
-
 
     /* --------------------------  СЛУЖЕБНЫЕ ВНУТРЕННИЕ МЕТОДЫ  ------------------------------ */
 
@@ -14,7 +12,7 @@ var Classes = (function() {
      * @returns {Boolean}
      */
     _.isFunction = function(value) {
-        return typeof(value) === 'function';
+        return typeof value === 'function';
     };
 
     /**
@@ -25,7 +23,7 @@ var Classes = (function() {
      * @returns {Boolean}
      */
     _.isObject = function(value) {
-        return value !== null && typeof(value) === 'object';
+        return value !== null && typeof value === 'object';
     };
 
     /**
@@ -36,7 +34,6 @@ var Classes = (function() {
      * @returns {Mixed}
      */
     _.clone = function(value) {
-
         var copy, type;
 
         // Для простых типов, а также Null, Undefined и Function
@@ -48,22 +45,18 @@ var Classes = (function() {
 
         // Для Date
         if (type === 'Date') {
-
             copy = new Date();
             copy.setTime(value.getTime());
             return copy;
-
         }
 
         // Для Array
         if (type === 'Array') {
-
             copy = [];
             for (var i = 0, len = value.length; i < len; i++) {
                 copy[i] = _.clone(value[i]);
             }
             return copy;
-
         }
 
         // Для всех остальных (Object)
@@ -73,8 +66,8 @@ var Classes = (function() {
                 copy[attr] = _.clone(value[attr]);
             }
         }
-        return copy;
 
+        return copy;
     };
 
     /**
@@ -87,12 +80,10 @@ var Classes = (function() {
      * @returns {Function}
      */
     _.bind = function(context, fakeContext, func) {
-
         return function() {
             var res = func.apply(context, arguments);
             return res === context ? fakeContext : res;
         };
-
     };
 
     /**
@@ -105,7 +96,6 @@ var Classes = (function() {
      * @returns {Object}
      */
     _.assign = function(obj, source, isFullClone) {
-
         for (var key in source) {
             if (source.hasOwnProperty(key)) {
                 obj[key] = isFullClone ? _.clone(source[key]) : source[key];
@@ -113,7 +103,6 @@ var Classes = (function() {
         }
 
         return obj;
-
     };
 
     /**
@@ -128,13 +117,10 @@ var Classes = (function() {
      * @returns {Object}
      */
     _.assignExternalInterface = function(obj, source, context, isFullClone) {
-
         var ignore = ['constructor'], key, value;
 
         for (key in source) {
-
-            if (source.hasOwnProperty(key) && !~ignore.indexOf(key)) {
-
+            if (source.hasOwnProperty(key) && (ignore.indexOf(key) > -1)) {
                 if (_.isFunction(source[key])) {
                     value = _.bind(context, obj, source[key]);
                 } else {
@@ -147,13 +133,10 @@ var Classes = (function() {
                     writable: false,
                     value: value
                 });
-
             }
-
         }
 
         return obj;
-
     };
 
     /**
@@ -175,23 +158,18 @@ var Classes = (function() {
      * @param {Function} Parent - родительский класс
      */
     _.isExtend = function(Child, Parent) {
-
         var parentFullName = Parent.getFullName();
 
         while (Child && Child.getFullName) {
-
             if (Child.getFullName() === parentFullName) {
                 return true;
             }
 
             Child = Child.getExtend();
-
         }
 
         return false;
-
     };
-
 
     /* ------------------------------------------------  ФАБРИКИ  ---------------------------------------------- */
 
@@ -204,9 +182,9 @@ var Classes = (function() {
      * @returns {Object}
      */
     _.createInternalScope = function(body, base) {
+        var scope = {};
 
-        var scope = {},
-            base = base.protected || base.public;
+        base = base.protected || base.public;
 
         scope.public = Object.create(base);
         _.assign(scope.public, body.public || {});
@@ -220,7 +198,6 @@ var Classes = (function() {
         scope.private.__base = base;
 
         return scope;
-
     };
 
     /**
@@ -233,7 +210,6 @@ var Classes = (function() {
      * @returns {Object}
      */
     _.createExternalScope = function(internalScope, base, isProtectedNeeded) {
-
         var scope = {};
 
         scope.public = Object.create(base.public);
@@ -246,7 +222,6 @@ var Classes = (function() {
         }
 
         return scope;
-
     };
 
     /**
@@ -259,11 +234,10 @@ var Classes = (function() {
      * @returns {Object}
      */
     _.construct = function(body, args, isProtectedNeeded) {
-
         var baseBody = body.extend && body.extend.getBody(),
-            base = baseBody ? _.construct(baseBody, [], true) : { public: {} };
+            base = baseBody ? _.construct(baseBody, [], true) : { public: {} },
 
-        var internalScope = _.createInternalScope(body, base),
+            internalScope = _.createInternalScope(body, base),
             externalScope = _.createExternalScope(internalScope, base, isProtectedNeeded);
 
         if (isProtectedNeeded) {
@@ -281,7 +255,6 @@ var Classes = (function() {
         }
 
         return externalScope;
-
     };
 
     /**
@@ -293,30 +266,30 @@ var Classes = (function() {
      * @returns {Object}
      */
     _.addSystemStaticMethods = function(fullName, body) {
+        var scope = {};
 
-        var public = body.staticPublic = body.staticPublic || {},
-            private = body.staticPrivate = body.staticPrivate || {};
+        scope.public = body.staticPublic = body.staticPublic || {},
+        scope.private = body.staticPrivate = body.staticPrivate || {};
 
         // Доступ к декларации класса
-        private.__body = body;
-        public.getBody = function() { return this.__body; };
+        scope.private.__body = body;
+        scope.public.getBody = function() { return this.__body; };
 
         // Доступ к базовому классу
-        private.__extend = body.extend;
-        public.getExtend = function() { return this.__extend; };
+        scope.private.__extend = body.extend;
+        scope.public.getExtend = function() { return this.__extend; };
 
         // Полное имя класса
-        private.__fullName = fullName;
-        public.getFullName = function() { return this.__fullName; };
+        scope.private.__fullName = fullName;
+        scope.public.getFullName = function() { return this.__fullName; };
 
         // Тип
-        private.__type = $.TYPES.CLASS;
-        public.getType = function() { return this.__type; }
+        scope.private.__type = $.TYPES.CLASS;
+        scope.public.getType = function() { return this.__type; };
 
         // Проверка наследственности
-        private.__extends = {};
-        public.is = function(Parent) {
-
+        scope.private.__extends = {};
+        scope.public.is = function(Parent) {
             if (!Parent.getFullName) {
                 return false;
             }
@@ -328,11 +301,9 @@ var Classes = (function() {
             }
 
             return this.__extends[parentFullName] = _.isExtend(this, Parent);
-
         };
 
         return body;
-
     };
 
     /**
@@ -343,7 +314,6 @@ var Classes = (function() {
      * @returns {Object}
      */
     _.createStaticScope = function(body) {
-
         var scope = {};
 
         scope.public = {};
@@ -353,7 +323,6 @@ var Classes = (function() {
         _.assignExternalInterface(scope.public, body.staticPublic || {}, scope.private);
 
         return scope;
-
     };
 
     /**
@@ -364,24 +333,19 @@ var Classes = (function() {
      * @returns {Function}
      */
     _.createPublicConstructor = function(body) {
-
         var Constructor = function() {
-
                 var scope = _.construct(body, arguments);
 
                 scope.public.constructor = Constructor;
 
                 return scope.public;
-
             },
             staticScope = _.createStaticScope(body);
 
         _.assign(Constructor, staticScope.public);
 
         return Constructor;
-
     };
-
 
     /* --------------------------------------  ПРОСТРАНСТВА ИМЁН  ------------------------------------- */
 
@@ -417,7 +381,6 @@ var Classes = (function() {
          * @returns {Object}
          */
         decl: function(name, body) {
-
             var fullName = this.getFullName() + '.' + name;
 
             if (this.hasOwnProperty(name)) {
@@ -428,7 +391,6 @@ var Classes = (function() {
             this[name] = _.createPublicConstructor(body);
 
             return this[name];
-
         }
     };
 
@@ -440,7 +402,6 @@ var Classes = (function() {
      * @returns {Object}
      */
     _.name = function(base, name) {
-
         var fullName = base.getFullName() + '.' + name;
 
         if (base !== $ && base.getType() !== $.TYPES.NAMESPACE) {
@@ -458,7 +419,6 @@ var Classes = (function() {
         };
 
         return namespace;
-
     };
 
     /**
@@ -469,17 +429,14 @@ var Classes = (function() {
      * @returns {Object}
      */
     _.rname = function(base, name) {
-
         var names = name.split('.'), i;
 
-        for(i = 0; i < names.length; i++) {
+        for (i = 0; i < names.length; i++) {
             base = _.name(base, names[i]);
         }
 
         return base;
-
     };
-
 
     /* --------------------------------  ПУБЛИЧНЫЙ ИНТЕРФЕЙС CLASSES  ------------------------------- */
 
@@ -498,7 +455,6 @@ var Classes = (function() {
      * @returns {String}
      */
     $.getType = function(value) {
-
         if (value === null) {
             return 'Null';
         }
@@ -508,7 +464,6 @@ var Classes = (function() {
         }
 
         if (_.isObject(value)) {
-
             if (_.isFunction(value.getType)) {
                 return value.getType();
             }
@@ -516,14 +471,12 @@ var Classes = (function() {
             if (_.isFunction(value.constructor) && _.isFunction(value.constructor.getFullName)) {
                 return value.constructor.getFullName();
             }
-
         }
 
         return Object.prototype
             .toString
             .call(value)
             .slice(8, -1);
-
     };
 
     /**
@@ -534,12 +487,11 @@ var Classes = (function() {
      * @returns {Boolean}
      */
     $.is = function(obj, Type) {
-
-        if (!obj || typeof(obj) !== 'object' || typeof(obj.constructor) !== 'function') {
+        if (!obj || typeof obj !== 'object' || typeof obj.constructor !== 'function') {
             return false;
         }
 
-        if (typeof(Type) !== 'function') {
+        if (typeof Type !== 'function') {
             return false;
         }
 
@@ -551,12 +503,11 @@ var Classes = (function() {
             return true;
         }
 
-        if (typeof(obj.constructor.is) !== 'function') {
+        if (typeof obj.constructor.is !== 'function') {
             return false;
         }
 
         return obj.constructor.is(Type);
-
     };
 
     /**
@@ -579,7 +530,6 @@ var Classes = (function() {
     $.decl = _.namespaceProto.decl;
 
     return $;
-
 })();
 
 if (module && module.parent) {

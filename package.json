@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/xescoder/classes#readme",
   "devDependencies": {
+    "git-hooks": "0.0.4",
     "jscs": "2.9.0",
     "jscs-jsdoc": "^1.3.1",
     "jshint": "~2.5.3",

@@ -101,7 +101,8 @@ module.exports = {
                     'beforeEach',
                     'describe',
                     'it',
-                    'sinon'
+                    'sinon',
+                    'getClasses'
                 ],
                 sub: true
             },

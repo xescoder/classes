@@ -251,7 +251,9 @@ var Classes = (function() {
         }
 
         for (var mod in internalScope) {
-            delete internalScope[mod].constructor;
+            if (internalScope.hasOwnProperty(mod)) {
+                delete internalScope[mod].constructor;
+            }
         }
 
         return externalScope;
@@ -296,11 +298,11 @@ var Classes = (function() {
 
             var parentFullName = Parent.getFullName();
 
-            if (this.__extends.hasOwnProperty(parentFullName)) {
-                return this.__extends[parentFullName];
+            if (!this.__extends.hasOwnProperty(parentFullName)) {
+                this.__extends[parentFullName] = _.isExtend(this, Parent);
             }
 
-            return this.__extends[parentFullName] = _.isExtend(this, Parent);
+            return this.__extends[parentFullName];
         };
 
         return body;
@@ -523,7 +525,7 @@ var Classes = (function() {
      * Включает тестовый режим работы
      */
     $.enableTestMode = function() {
-        $.__proto__ = _;
+        $.__proto__ = _; // jshint ignore:line
     };
 
     $.name = _.namespaceProto.name;

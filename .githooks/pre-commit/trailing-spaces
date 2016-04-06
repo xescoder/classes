@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# Check unwanted trailing whitespaces
+git --no-pager diff --cached --check || exit 1

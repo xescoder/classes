@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Exit script on error code (not 0) of any command
+set -e
+
+FILES=$(git diff --cached --name-only --diff-filter=ACMR)
+JS_FILES=$(echo $FILES | tr ' ' '\n' | grep -E '\.js$' | xargs)
+
+export NODE_PATH=./node_modules:$NODE_PATH
+
+if [[ -n $JS_FILES ]]
+then
+    echo Run jshint
+    node_modules/.bin/jshint-groups $JS_FILES --reporter node_modules/jshint-stylish/stylish.js || exit 1
+
+    echo Run jscs
+    node_modules/.bin/jscs $JS_FILES || exit 1
+fi

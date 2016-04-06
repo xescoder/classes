@@ -1,3 +1,5 @@
+/* global gc */
+
 var Classes = require('../classes.js'),
     startMemoryUsage = 0,
     memoryLeak = 0;
@@ -12,7 +14,7 @@ Classes.decl('RandomString', {
 
         _getChar: function() {
             var code = this._getRandom(0, 256);
-            return String.fromCharCode();
+            return String.fromCharCode(code);
         },
 
         _getLength: function() {
@@ -51,14 +53,17 @@ for (i = 0; i < 100000; i++) {
     list.push(new Classes.RandomString());
 }
 
+/* jshint ignore:start */
 delete list;
 delete i;
+/* jshint ignore:end */
+
 gc();
 
 memoryLeak = process.memoryUsage().heapUsed - startMemoryUsage;
 
 if (memoryLeak > 0) {
-    console.error('Memory leak');
+    console.error('Memory leak: ' + memoryLeak);
 } else {
     console.log('Not memory leak');
 }

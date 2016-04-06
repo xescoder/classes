@@ -50,9 +50,10 @@ describe('Classes._clone', function() {
                 assert.strictEqual(val1, val2);
             } else {
                 assert.notStrictEqual(val1, val2);
-                for (var key in val1) {
-                    test(val1[key], val2[key]);
-                }
+
+                _.forEach(val1, function(v, k) {
+                    test(v, val2[k]);
+                });
             }
         }
     });

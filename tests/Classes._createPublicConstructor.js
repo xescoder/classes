@@ -4,7 +4,7 @@ describe('Classes._createPublicConstructor', function() {
     before(function() {
         Classes = getClasses();
         Classes.enableTestMode();
-        Classes.setPrivate('copyProps', sinon.stub.returnsArg(0))
+        Classes.setPrivate('copyProps', sinon.stub.returnsArg(0));
     });
 
     beforeEach(function() {
@@ -52,7 +52,7 @@ describe('Classes._createPublicConstructor', function() {
     it('при создании объекта вызывается публичный конструктор класса', function() {
         var spy = body.public.constructor = sinon.spy(),
             F = Classes.createPublicConstructor(body),
-            obj = new F(123);
+            obj = new F(123); // jshint ignore:line
 
         assert.isTrue(spy.calledOnce);
     });

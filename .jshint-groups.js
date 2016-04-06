@@ -30,7 +30,6 @@ module.exports = {
         forin: true,             // Require filtering for..in loops with obj.hasOwnProperty()
         immed: true,             // Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`
         indent: 4,               // Number of spaces to use for indentation
-        latedef: true,           // Require variables/functions to be defined before being used
         maxdepth: 4,             // Max depth of nested blocks (within functions)
 
         maxparams: 4,            // Max number of formal params allowed per function

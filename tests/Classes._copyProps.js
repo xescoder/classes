@@ -70,7 +70,7 @@ describe.skip('Classes._copyProps', function() {
             },
             props = Classes.copyProps(body);
 
-        assert.strictEqual(props.private.__proto__, props.protected);
+        assert.strictEqual(props.private.__proto__, props.protected); // jshint ignore:line
     });
 
     it('устанавливает защищённой области видимости в виде прототипа публичную', function() {
@@ -80,6 +80,6 @@ describe.skip('Classes._copyProps', function() {
             },
             props = Classes.copyProps(body);
 
-        assert.strictEqual(props.protected.__proto__, props.public);
+        assert.strictEqual(props.protected.__proto__, props.public); // jshint ignore:line
     });
 });

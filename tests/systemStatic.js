@@ -1,5 +1,5 @@
 describe('System static', function() {
-    var Classes, body;
+    var Classes;
 
     before(function() {
         Classes = getClasses();

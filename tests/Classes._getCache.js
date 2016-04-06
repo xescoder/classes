@@ -1,5 +1,5 @@
 describe.skip('Classes._getCache', function() {
-    var Classes, private;
+    var Classes;
 
     before(function() {
         Classes = getClasses();

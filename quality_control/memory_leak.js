@@ -7,59 +7,35 @@ var Classes = require('../classes.js'),
 Classes.decl('RandomString', {
 
     private: {
-
-        _getRandom: function(min, max) {
-            return Math.random() * (max - min) + min;
-        },
-
-        _getChar: function() {
-            var code = this._getRandom(0, 256);
-            return String.fromCharCode(code);
-        },
-
-        _getLength: function() {
-            return this._getRandom(10, 100);
-        },
-
-        _generateStr: function() {
-            var len = this._getLength(), i;
-
-            this._str = '';
-            for (i = 0; i < len; i++) {
-                this._str += this._getChar();
-            }
-        }
-
+        _string: 'test test test test test test test test test',
+        _number: 123456789
     },
 
     public: {
-
-        constructor: function() {
-            this._generateStr();
+        getString: function() {
+            return this._string;
         },
 
-        getString: function() {
-            return this._str;
+        getNumber: function() {
+            return this._number;
         }
     }
 
 });
 
+gc();
 startMemoryUsage = process.memoryUsage().heapUsed;
 
-var list = [], i;
+var obj, i;
 
 for (i = 0; i < 100000; i++) {
-    list.push(new Classes.RandomString());
+    obj = new Classes.RandomString();
+    delete obj; // jshint ignore:line
 }
 
-/* jshint ignore:start */
-delete list;
-delete i;
-/* jshint ignore:end */
+delete i; // jshint ignore:line
 
 gc();
-
 memoryLeak = process.memoryUsage().heapUsed - startMemoryUsage;
 
 if (memoryLeak > 0) {

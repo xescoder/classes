@@ -42,7 +42,7 @@ describe('Classes._createPublicConstructor', function() {
         assert.notDeepProperty(obj, '_field');
     });
 
-    it.skip('поле constructor создаваемого объекта указывает на саму функцию-конструктор', function() {
+    it('поле constructor создаваемого объекта указывает на саму функцию-конструктор', function() {
         var F = Classes.createPublicConstructor(body),
             obj = new F(123);
 

@@ -27,6 +27,18 @@ var Classes = (function() {
     };
 
     /**
+     * Оболочка над Object.prototype.hawOwnProperty
+     *
+     * @private
+     * @param {Object} obj
+     * @param {String} key
+     * @returns {Boolean}
+     */
+    _.hasOwn = function(obj, key) {
+        return obj.hasOwnProperty(key);
+    };
+
+    /**
      * Клонирует значение переменной
      *
      * @private
@@ -238,20 +250,25 @@ var Classes = (function() {
             base = baseBody ? _.construct(baseBody, [], true) : { public: {} },
 
             internalScope = _.createInternalScope(body, base),
-            externalScope = _.createExternalScope(internalScope, base, isProtectedNeeded);
+            externalScope = _.createExternalScope(internalScope, base, isProtectedNeeded),
+            inited = false;
 
         if (isProtectedNeeded) {
-            if (_.isFunction(internalScope.protected.constructor)) {
+            if (_.hasOwn(internalScope.protected, 'constructor') && _.isFunction(internalScope.protected.constructor)) {
                 internalScope.protected.constructor.apply(internalScope.private, args);
+                inited = true;
             }
-        } else {
-            if (_.isFunction(internalScope.public.constructor)) {
+        }
+
+        if (!inited) {
+            if (_.hasOwn(internalScope.public, 'constructor') && _.isFunction(internalScope.public.constructor)) {
                 internalScope.public.constructor.apply(internalScope.private, args);
+                inited = true;
             }
         }
 
         for (var mod in internalScope) {
-            if (internalScope.hasOwnProperty(mod)) {
+            if (_.hasOwn(internalScope, mod)) {
                 delete internalScope[mod].constructor;
             }
         }

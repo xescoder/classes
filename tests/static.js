@@ -1,9 +1,7 @@
 describe('Static', function() {
+    var Classes;
 
-     var Classes;
-
-     before(function() {
-
+    before(function() {
         Classes = getClasses();
 
         Classes.decl('Test', {
@@ -19,8 +17,7 @@ describe('Static', function() {
             }
 
         });
-
-     });
+    });
 
     it('есть доступ к статичным методам через класс', function() {
         assert.isFunction(Classes.Test.getStaticField);
@@ -33,5 +30,4 @@ describe('Static', function() {
     it('нет доступа к приватным статическим свойствам', function() {
         assert.isUndefined(Classes.Test.field);
     });
-
 });

@@ -1,5 +1,4 @@
 describe.skip('Classes._isForbiddenName', function() {
-
     var Classes;
 
     before(function() {
@@ -11,5 +10,4 @@ describe.skip('Classes._isForbiddenName', function() {
         var obj = { test: 1 };
         assert.isTrue(Classes.isForbiddenName(obj, 'test'));
     });
-
 });

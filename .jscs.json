@@ -1,7 +1,7 @@
 {
     "excludeFiles": [
-        "/node_modules/**",
-        "**/*.json"
+        "node_modules/**",
+        "*.json"
     ],
 
     "maximumLineLength": {

@@ -1,5 +1,4 @@
 describe('Classes._isFunction', function() {
-
     var Classes;
 
     before(function() {
@@ -21,5 +20,4 @@ describe('Classes._isFunction', function() {
         var value = {};
         assert.isFalse(Classes.isFunction(value));
     });
-
 });

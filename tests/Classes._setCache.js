@@ -1,5 +1,4 @@
 describe.skip('Classes._setCache', function() {
-
     var Classes;
 
     before(function() {
@@ -16,5 +15,4 @@ describe.skip('Classes._setCache', function() {
         var res = Classes.setCache('test', 5);
         assert.strictEqual(res, 5);
     });
-
 });

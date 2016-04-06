@@ -1,17 +1,13 @@
 describe('Classes._createPublicConstructor', function() {
-
     var Classes, body;
 
     before(function() {
-
         Classes = getClasses();
         Classes.enableTestMode();
         Classes.setPrivate('copyProps', sinon.stub.returnsArg(0))
-
     });
 
     beforeEach(function() {
-
         body = {
             private: {
                 _field: null
@@ -25,52 +21,39 @@ describe('Classes._createPublicConstructor', function() {
                 }
             }
         };
-
     });
 
     it('возвращает функцию', function() {
-
         var F = Classes.createPublicConstructor(body);
         assert.isFunction(F);
-
     });
 
     it('создаваемый конструктором объект содержит свойства публичной области видимости', function() {
-
         var F = Classes.createPublicConstructor(body),
             obj = new F(123);
 
         assert.deepProperty(obj, 'getField');
-
     });
 
     it('создаваемый конструктором объект не содержит свойства приватной области видимости', function() {
-
         var F = Classes.createPublicConstructor(body),
             obj = new F(123);
 
         assert.notDeepProperty(obj, '_field');
-
     });
 
     it.skip('поле constructor создаваемого объекта указывает на саму функцию-конструктор', function() {
-
         var F = Classes.createPublicConstructor(body),
             obj = new F(123);
 
         assert.strictEqual(obj.constructor, F);
-
     });
 
     it('при создании объекта вызывается публичный конструктор класса', function() {
-
-        var spy = body.public.constructor = sinon.spy();
-
-        var F = Classes.createPublicConstructor(body),
+        var spy = body.public.constructor = sinon.spy(),
+            F = Classes.createPublicConstructor(body),
             obj = new F(123);
 
         assert.isTrue(spy.calledOnce);
-
     });
-
 });

@@ -1,9 +1,7 @@
 describe('Classes.is', function() {
+    var Classes, obj;
 
-     var Classes, obj;
-
-     before(function() {
-
+    before(function() {
         Classes = getClasses();
 
         Classes.decl('A', {});
@@ -19,7 +17,6 @@ describe('Classes.is', function() {
         Classes.decl('D', {});
 
         obj = new Classes.C();
-
     });
 
     it('возвращает true, если объект унаследован от класса', function() {
@@ -31,5 +28,4 @@ describe('Classes.is', function() {
     it('возвращает false, если объект не унаследован от класса', function() {
         assert.isFalse(Classes.is(obj, Classes.D));
     });
-
 });

@@ -1,5 +1,4 @@
 describe.skip('Classes._copyProps', function() {
-
     var Classes;
 
     before(function() {
@@ -8,18 +7,15 @@ describe.skip('Classes._copyProps', function() {
     });
 
     it('возвращает объект со свойствами, описывающими области доступа', function() {
-
         var props = Classes.copyProps({});
 
         assert.isObject(props);
         assert.isObject(props.private);
         assert.isObject(props.protected);
         assert.isObject(props.public);
-
     });
 
     it('клонирует свойства областей видимости из тела класса', function() {
-
         var body = {
                 private: {
                     obj: { field: 1 }
@@ -45,11 +41,9 @@ describe.skip('Classes._copyProps', function() {
 
         props.public.obj.field = 5;
         assert.notEqual(props.public.obj.field, body.public.obj.field);
-
     });
 
     it('устанавливает функциям класса в качестве контекста приватную область видимости', function() {
-
         var body = {
                 private: {
                     _param: 123,
@@ -67,11 +61,9 @@ describe.skip('Classes._copyProps', function() {
         assert.strictEqual(props.private.func(), 123);
         assert.strictEqual(props.protected.func(), 123);
         assert.strictEqual(props.public.func(), 123);
-
     });
 
     it('устанавливает приватной области видимости в виде прототипа защищённую', function() {
-
         var body = {
                 private: {},
                 protected: {}
@@ -79,11 +71,9 @@ describe.skip('Classes._copyProps', function() {
             props = Classes.copyProps(body);
 
         assert.strictEqual(props.private.__proto__, props.protected);
-
     });
 
     it('устанавливает защищённой области видимости в виде прототипа публичную', function() {
-
         var body = {
                 protected: {},
                 public: {}
@@ -91,7 +81,5 @@ describe.skip('Classes._copyProps', function() {
             props = Classes.copyProps(body);
 
         assert.strictEqual(props.protected.__proto__, props.public);
-
     });
-
 });

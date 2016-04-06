@@ -1,5 +1,4 @@
 describe.skip('Classes._createClass', function() {
-
     var Classes;
 
     beforeEach(function() {
@@ -8,7 +7,6 @@ describe.skip('Classes._createClass', function() {
     });
 
     it('возвращает ошибку, если имя класса уже занято', function() {
-
         Classes.Test = { field: 4 };
 
         var test = function() {
@@ -17,7 +15,6 @@ describe.skip('Classes._createClass', function() {
 
         assert.throw(test, 'Classes. Не удалось создать класс: имя Test уже занято.');
         assert.strictEqual(Classes.Test.field, 4);
-
     });
 
     it('тип создаваемого класса Class', function() {
@@ -31,7 +28,6 @@ describe.skip('Classes._createClass', function() {
     });
 
     it('переданная функция является конструктором создаваемого класса', function() {
-
         var constructor = sinon.stub().returns({ field: 23 }),
             element;
 
@@ -39,7 +35,5 @@ describe.skip('Classes._createClass', function() {
         element = new Classes.Test();
 
         assert.strictEqual(element.field, 23);
-
     });
-
 });

@@ -1,25 +1,22 @@
 describe('System static', function() {
+    var Classes, body;
 
-     var Classes, body;
+    before(function() {
+        Classes = getClasses();
 
-     before(function() {
+        Classes.decl('Base', {});
 
-         Classes = getClasses();
+        Classes.decl('Test', {
 
-         Classes.decl('Base', {});
+            extend: Classes.Base,
 
-         Classes.decl('Test', {
-
-             extend: Classes.Base,
-
-             staticPublic: {
+            staticPublic: {
                  test: function() {
                      return 123;
                  }
              }
 
-         });
-
+        });
     });
 
     it('getBody возвращает тело декларации класса', function() {
@@ -33,5 +30,4 @@ describe('System static', function() {
     it('getFullName возвращает полное имя класса', function() {
         assert.equal(Classes.Test.getFullName(), 'Classes.Test');
     });
-
 });

@@ -1,5 +1,4 @@
 describe('Classes.enableTestMode', function() {
-
     var Classes;
 
     before(function() {
@@ -10,5 +9,4 @@ describe('Classes.enableTestMode', function() {
         Classes.enableTestMode();
         assert.ok(Classes.isFunction, 'внутренние функции Classes не доступны');
     });
-
 });

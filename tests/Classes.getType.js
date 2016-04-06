@@ -1,9 +1,7 @@
 describe('Classes.getType', function() {
-
     var Classes;
 
     before(function() {
-
         Classes = getClasses();
 
         Classes.name('Namespace');
@@ -11,7 +9,6 @@ describe('Classes.getType', function() {
         Classes.decl('Test', {
             public: { constructor: function() {} }
         });
-
     });
 
     it('должен возвращать Undefined для undefined', function() {
@@ -40,66 +37,51 @@ describe('Classes.getType', function() {
     });
 
     it('должен возвращать Function для функции', function() {
-
         var value = function() {},
             type = Classes.getType(value);
 
         assert.strictEqual(type, 'Function');
-
     });
 
     it('должен возвращать Object для объекта', function() {
-
         var value = {},
             type = Classes.getType(value);
 
         assert.strictEqual(type, 'Object');
-
     });
 
     it('должен возвращать Array для массива', function() {
-
         var value = [],
             type = Classes.getType(value);
 
         assert.strictEqual(type, 'Array');
-
     });
 
     it('должен возвращать Date для даты', function() {
-
         var value = new Date,
             type = Classes.getType(value);
 
         assert.strictEqual(type, 'Date');
-
     });
 
     it('должен возвращать Class для класса', function() {
-
         var value = Classes.Test,
             type = Classes.getType(value);
 
         assert.strictEqual(type, 'Class');
-
     });
 
     it('должен возвращать Namespace для пространства имён', function() {
-
         var value = Classes.Namespace,
             type = Classes.getType(value);
 
         assert.strictEqual(type, 'Namespace');
-
     });
 
     it('должен возвращать название типа для экземпляра класса', function() {
-
         var value = new Classes.Test(),
             type = Classes.getType(value);
 
         assert.strictEqual(type, 'Classes.Test');
-
     });
-
 });

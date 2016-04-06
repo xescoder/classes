@@ -1,5 +1,4 @@
 describe.skip('Classes.decl', function() {
-
     var Classes;
 
     before(function() {
@@ -8,7 +7,6 @@ describe.skip('Classes.decl', function() {
     });
 
     it('вызывает функции для создания класса в правильном порядке', function() {
-
         var body = {},
             createClassSpy = sinon.spy(),
             createPublicConstructorSpy = sinon.stub().returnsArg(0);
@@ -24,7 +22,5 @@ describe.skip('Classes.decl', function() {
         assert.isTrue(createClassSpy.calledAfter(createPublicConstructorSpy));
         assert.isTrue(createClassSpy.calledWith('Test', body));
         assert.isTrue(createClassSpy.calledOnce);
-
     });
-
 });

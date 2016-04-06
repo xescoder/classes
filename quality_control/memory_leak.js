@@ -20,14 +20,12 @@ Classes.decl('RandomString', {
         },
 
         _generateStr: function() {
-
             var len = this._getLength(), i;
 
             this._str = '';
-            for(i = 0; i < len; i++) {
+            for (i = 0; i < len; i++) {
                 this._str += this._getChar();
             }
-
         }
 
     },

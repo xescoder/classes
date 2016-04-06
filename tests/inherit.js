@@ -1,9 +1,7 @@
 describe('Inherit', function() {
-
     var Classes;
 
     before(function() {
-
         Classes = getClasses();
 
         Classes.decl('Animal', {
@@ -69,11 +67,9 @@ describe('Inherit', function() {
             }
 
         });
-
     });
 
     it('публичный интерфейс экземпляра наследуюется от базового класса', function() {
-
         var test = new Classes.Test();
 
         assert.property(test, 'getAge');
@@ -81,7 +77,6 @@ describe('Inherit', function() {
 
         assert.property(test, 'getName');
         assert.isFunction(test.getName);
-
     });
 
     it('y наследника есть доступ к публичным методам базового класса', function() {
@@ -103,5 +98,4 @@ describe('Inherit', function() {
         var test = new Classes.Test();
         assert.isUndefined(test.getPrivateBaseField());
     });
-
 });

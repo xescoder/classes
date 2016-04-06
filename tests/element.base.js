@@ -1,9 +1,7 @@
 describe('Element base', function() {
-
     var Classes;
 
     before(function() {
-
         Classes = getClasses();
 
         Classes.decl('Param', {
@@ -51,20 +49,16 @@ describe('Element base', function() {
             }
 
         });
-
     });
 
     it('по умолчанию поля инициализируются определёнными в декларации значениями', function() {
-
         var param = new Classes.Param();
 
         assert.strictEqual(param.getName(), 'default');
         assert.strictEqual(param.getValue(), null);
-
     });
 
     it('нет прямого доступа к приватным полям', function() {
-
         var param = new Classes.Param('param1', 10);
 
         assert.isUndefined(param._name);
@@ -72,11 +66,9 @@ describe('Element base', function() {
 
         assert.strictEqual(param.getName(), 'param1');
         assert.strictEqual(param.getValue(), 10);
-
     });
 
     it('приватные параметры невозможно перезаписать извне', function() {
-
         var param = new Classes.Param('param1', 10);
 
         param._name = 'param2';
@@ -90,11 +82,9 @@ describe('Element base', function() {
 
         assert.strictEqual(param.getName(), 'param2');
         assert.strictEqual(param.getValue(), 20);
-
     });
 
     it('публичный интерфейс объекта неизменяем', function() {
-
         var param = new Classes.Param();
 
         param.setValue = 123;
@@ -104,31 +94,25 @@ describe('Element base', function() {
         assert.isFunction(param.setValue);
         assert.isFunction(param.getValue);
         assert.isFunction(param.getName);
-
     });
 
     it('возвращая this функции не расскрывают внутренней реализации класса', function() {
-
         var param = new Classes.Param('param', 10),
             _this = param.setValue(1);
 
         assert.isUndefined(_this._name);
         assert.isUndefined(_this._value);
         assert.strictEqual(_this, param);
-
     });
 
     it('работают стандартные методы объекта, определённые в публичном интерфейсе', function() {
-
         var param = new Classes.Param('param', 5),
-            string = param + '';
+            string = String(param);
 
         assert.strictEqual(string, 'param: 5');
-
     });
 
     it('объекты изменяются независимо друг от друга', function() {
-
         var param1 = new Classes.Param(),
             param2 = new Classes.Param();
 
@@ -140,16 +124,11 @@ describe('Element base', function() {
 
         assert.strictEqual(param2.getName(), 'p');
         assert.strictEqual(param2.getValue(), true);
-
     });
 
     it.skip('с объектами корректно работает instanceof', function() {
-
         var param = new Classes.Param();
 
         assert.instanceOf(param, Classes.Param);
-
     });
-
-
 });

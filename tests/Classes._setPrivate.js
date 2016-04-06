@@ -1,5 +1,4 @@
 describe('Classes._setPrivate', function() {
-
     var Classes;
 
     before(function() {
@@ -11,5 +10,4 @@ describe('Classes._setPrivate', function() {
         Classes.setPrivate('testField', 123);
         assert.strictEqual(Classes.testField, 123);
     });
-
 });

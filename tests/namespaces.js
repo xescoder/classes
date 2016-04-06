@@ -1,5 +1,4 @@
 describe('Namespaces', function() {
-
     var Classes;
 
     beforeEach(function() {
@@ -14,7 +13,6 @@ describe('Namespaces', function() {
     });
 
     it('нельзя перезаписать существующее пространство имён', function() {
-
         Classes.name('TestNamespace');
 
         var test = function() {
@@ -40,5 +38,4 @@ describe('Namespaces', function() {
         Classes.System.decl('Console', {});
         assert.equal(Classes.System.Console.getType(), Classes.TYPES.CLASS);
     });
-
 });

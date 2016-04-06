@@ -125,10 +125,4 @@ describe('Element base', function() {
         assert.strictEqual(param2.getName(), 'p');
         assert.strictEqual(param2.getValue(), true);
     });
-
-    it.skip('с объектами корректно работает instanceof', function() {
-        var param = new Classes.Param();
-
-        assert.instanceOf(param, Classes.Param);
-    });
 });

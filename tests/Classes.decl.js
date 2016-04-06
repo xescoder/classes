@@ -1,26 +1,17 @@
-describe.skip('Classes.decl', function() {
+describe('Classes.decl', function() {
     var Classes;
 
     before(function() {
         Classes = getClasses();
-        Classes.enableTestMode();
     });
 
-    it('вызывает функции для создания класса в правильном порядке', function() {
-        var body = {},
-            createClassSpy = sinon.spy(),
-            createPublicConstructorSpy = sinon.stub().returnsArg(0);
+    it('нельзя перезаписать существующий класс', function() {
+        Classes.decl('Test', {});
 
-        Classes.setPrivate('createClass', createClassSpy);
-        Classes.setPrivate('createPublicConstructor', createPublicConstructorSpy);
+        var test = function() {
+            Classes.decl('Test', {});
+        };
 
-        Classes.decl('Test', body);
-
-        assert.isTrue(createPublicConstructorSpy.calledWith(body));
-        assert.isTrue(createPublicConstructorSpy.calledOnce);
-
-        assert.isTrue(createClassSpy.calledAfter(createPublicConstructorSpy));
-        assert.isTrue(createClassSpy.calledWith('Test', body));
-        assert.isTrue(createClassSpy.calledOnce);
+        assert.throw(test, 'Classes. Не удалось создать класс: имя Classes.Test уже занято.');
     });
 });

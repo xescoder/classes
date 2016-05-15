@@ -2,6 +2,11 @@ var Classes = (function() {
     var $ = {}, // public fields
         _ = {}; // private fields
 
+    /**
+     * Тестовый режим (по умолчанию выключен)
+     */
+    _.testMode = false;
+
     /* --------------------------  СЛУЖЕБНЫЕ ВНУТРЕННИЕ МЕТОДЫ  ------------------------------ */
 
     /**
@@ -224,6 +229,10 @@ var Classes = (function() {
     _.createExternalScope = function(internalScope, base, isProtectedNeeded) {
         var scope = {};
 
+        if (_.testMode) {
+            return internalScope;
+        }
+
         scope.public = Object.create(base.public);
         _.assignExternalInterface(scope.public, internalScope.public, internalScope.private);
 
@@ -339,7 +348,12 @@ var Classes = (function() {
         scope.private = Object.create(scope.public);
 
         _.assign(scope.private, body.staticPrivate || {});
-        _.assignExternalInterface(scope.public, body.staticPublic || {}, scope.private);
+
+        if (_.testMode) {
+            _.assign(scope.public, body.staticPublic || {});
+        } else {
+            _.assignExternalInterface(scope.public, body.staticPublic || {}, scope.private);
+        }
 
         return scope;
     };
@@ -357,11 +371,15 @@ var Classes = (function() {
 
                 scope.public.constructor = Constructor;
 
-                return scope.public;
+                return _.testMode ? scope.private : scope.public;
             },
             staticScope = _.createStaticScope(body);
 
         _.assign(Constructor, staticScope.public);
+
+        if (_.testMode) {
+            _.assign(Constructor, staticScope.private);
+        }
 
         return Constructor;
     };
@@ -542,6 +560,7 @@ var Classes = (function() {
      * Включает тестовый режим работы
      */
     $.enableTestMode = function() {
+        _.testMode = true;
         $.__proto__ = _; // jshint ignore:line
     };
 

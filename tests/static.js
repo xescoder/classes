@@ -6,9 +6,19 @@ describe('Static', function() {
 
         Classes.decl('Test', {
 
+            private: {
+                getName: function() {
+                    return 'Test';
+                }
+            },
+
             staticPublic: {
                 getStaticField: function() {
                     return this.field;
+                },
+
+                getInstance: function() {
+                    return new this();
                 }
             },
 
@@ -29,5 +39,9 @@ describe('Static', function() {
 
     it('нет доступа к приватным статическим свойствам', function() {
         assert.isUndefined(Classes.Test.field);
+    });
+
+    it('через this можно создать экземпляр класса', function() {
+        assert.strictEqual(Classes.Test.getInstance().getName(), 'Test');
     });
 });

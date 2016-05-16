@@ -7,6 +7,13 @@ var Classes = (function() {
      */
     _.testMode = false;
 
+    /**
+     * Модификаторы доступа
+     */
+    _.PUBLIC = 'public';
+    _.PROTECTED = 'protected';
+    _.PRIVATE = 'private';
+
     /* --------------------------  СЛУЖЕБНЫЕ ВНУТРЕННИЕ МЕТОДЫ  ------------------------------ */
 
     /**
@@ -223,10 +230,10 @@ var Classes = (function() {
      * @private
      * @param {Object} internalScope - Внутренняя область видимости объекта
      * @param {Object} base - Экземпляр базового класса
-     * @param {Boolean} isProtectedNeeded - Необходим модификатор protected
+     * @param {String} scopeType - Необходимая область видимости
      * @returns {Object}
      */
-    _.createExternalScope = function(internalScope, base, isProtectedNeeded) {
+    _.createExternalScope = function(internalScope, base, scopeType) {
         var scope = {};
 
         if (_.testMode) {
@@ -236,7 +243,7 @@ var Classes = (function() {
         scope.public = Object.create(base.public);
         _.assignExternalInterface(scope.public, internalScope.public, internalScope.private);
 
-        if (isProtectedNeeded) {
+        if (scopeType === _.PROTECTED) {
             scope.protected = Object.create(base.protected || base.public);
             _.assign(scope.protected, scope.public);
             _.assignExternalInterface(scope.protected, internalScope.protected, internalScope.private);
@@ -251,38 +258,33 @@ var Classes = (function() {
      * @private
      * @param {Object} body - Тело декларации класса
      * @param {Object} args - Аргументы, передаваемые в конструктор
-     * @param {Boolean} isProtectedNeeded - Необходима область видимости protected в экземпляре
+     * @param {String} scopeType - Необходимая область видимости
      * @returns {Object}
      */
-    _.construct = function(body, args, isProtectedNeeded) {
+    _.construct = function(body, args, scopeType) {
         var baseBody = body.extend && body.extend.getBody(),
-            base = baseBody ? _.construct(baseBody, [], true) : { public: {} },
+            base = baseBody ? _.construct(baseBody, [], _.PROTECTED) : { public: {} },
+            scope = _.createInternalScope(body, base),
+            mods = ({
+                public: [_.PUBLIC],
+                protected: [_.PROTECTED, _.PUBLIC],
+                private: [_.PRIVATE, _.PROTECTED, _.PUBLIC]
+            })[scopeType];
 
-            internalScope = _.createInternalScope(body, base),
-            externalScope = _.createExternalScope(internalScope, base, isProtectedNeeded),
-            inited = false;
-
-        if (isProtectedNeeded) {
-            if (_.hasOwn(internalScope.protected, 'constructor') && _.isFunction(internalScope.protected.constructor)) {
-                internalScope.protected.constructor.apply(internalScope.private, args);
-                inited = true;
+        for (var i = 0; i < mods.length; i++) {
+            if (_.hasOwn(scope[mods[i]], 'constructor') && _.isFunction(scope[mods[i]].constructor)) {
+                scope[mods[i]].constructor.apply(scope.private, args);
+                break;
             }
         }
 
-        if (!inited) {
-            if (_.hasOwn(internalScope.public, 'constructor') && _.isFunction(internalScope.public.constructor)) {
-                internalScope.public.constructor.apply(internalScope.private, args);
-                inited = true;
+        for (var mod in scope) {
+            if (_.hasOwn(scope, mod)) {
+                delete scope[mod].constructor;
             }
         }
 
-        for (var mod in internalScope) {
-            if (_.hasOwn(internalScope, mod)) {
-                delete internalScope[mod].constructor;
-            }
-        }
-
-        return externalScope;
+        return scopeType === _.PRIVATE ? scope : _.createExternalScope(scope, base, scopeType);
     };
 
     /**
@@ -339,49 +341,45 @@ var Classes = (function() {
      *
      * @private
      * @param {Object} body - Тело декларации класса
-     * @returns {Object}
+     * @param {Function} publicConstructor - Публичный конструктор класса
+     * @param {Function} privateConstructor - Приватный конструктор класса
      */
-    _.createStaticScope = function(body) {
-        var scope = {};
+    _.createStaticScope = function(body, publicConstructor, privateConstructor) {
+        var staticPublic = body.staticPublic || {},
+            staticPrivate = body.staticPrivate || {};
 
-        scope.public = {};
-        scope.private = Object.create(scope.public);
+        _.assign(privateConstructor, staticPublic);
+        _.assign(privateConstructor, staticPrivate);
 
-        _.assign(scope.private, body.staticPrivate || {});
-
-        if (_.testMode) {
-            _.assign(scope.public, body.staticPublic || {});
-        } else {
-            _.assignExternalInterface(scope.public, body.staticPublic || {}, scope.private);
-        }
-
-        return scope;
+        _.assignExternalInterface(publicConstructor, staticPublic, privateConstructor);
     };
 
     /**
-     * Создаёт публичный конструктор класса
+     * Создаёт конструктор класса
      *
      * @private
      * @param {Object} body - Тело декларации класса
      * @returns {Function}
      */
-    _.createPublicConstructor = function(body) {
-        var Constructor = function() {
-                var scope = _.construct(body, arguments);
+    _.createConstructor = function(body) {
+        var PublicConstructor = function() {
+                var scope = _.construct(body, arguments, _.PUBLIC);
 
-                scope.public.constructor = Constructor;
+                scope.public.constructor = PublicConstructor;
 
-                return _.testMode ? scope.private : scope.public;
+                return scope.public;
             },
-            staticScope = _.createStaticScope(body);
+            PrivateConstructor = function() {
+                var scope = _.construct(body, arguments, _.PRIVATE);
 
-        _.assign(Constructor, staticScope.public);
+                scope.public.constructor = PublicConstructor;
 
-        if (_.testMode) {
-            _.assign(Constructor, staticScope.private);
-        }
+                return scope.private;
+            };
 
-        return Constructor;
+        _.createStaticScope(body, PublicConstructor, PrivateConstructor);
+
+        return _.testMode ? PrivateConstructor : PublicConstructor;
     };
 
     /* --------------------------------------  ПРОСТРАНСТВА ИМЁН  ------------------------------------- */
@@ -425,7 +423,7 @@ var Classes = (function() {
             }
 
             body = _.addSystemStaticMethods(fullName, body);
-            this[name] = _.createPublicConstructor(body);
+            this[name] = _.createConstructor(body);
 
             return this[name];
         }

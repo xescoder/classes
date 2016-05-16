@@ -1,4 +1,4 @@
-describe('Classes._createPublicConstructor', function() {
+describe('Classes._createConstructor', function() {
     var Classes, body;
 
     before(function() {
@@ -25,26 +25,26 @@ describe('Classes._createPublicConstructor', function() {
     });
 
     it('возвращает функцию', function() {
-        var F = Classes.createPublicConstructor(body);
+        var F = Classes.createConstructor(body);
         assert.isFunction(F);
     });
 
     it('создаваемый конструктором объект содержит свойства публичной области видимости', function() {
-        var F = Classes.createPublicConstructor(body),
+        var F = Classes.createConstructor(body),
             obj = new F(123);
 
         assert.deepProperty(obj, 'getField');
     });
 
     it('создаваемый конструктором объект не содержит свойства приватной области видимости', function() {
-        var F = Classes.createPublicConstructor(body),
+        var F = Classes.createConstructor(body),
             obj = new F(123);
 
         assert.notDeepProperty(obj, '_field');
     });
 
     it('поле constructor создаваемого объекта указывает на саму функцию-конструктор', function() {
-        var F = Classes.createPublicConstructor(body),
+        var F = Classes.createConstructor(body),
             obj = new F(123);
 
         assert.strictEqual(obj.constructor, F);
@@ -52,7 +52,7 @@ describe('Classes._createPublicConstructor', function() {
 
     it('при создании объекта вызывается публичный конструктор класса', function() {
         var spy = body.public.constructor = sinon.spy(),
-            F = Classes.createPublicConstructor(body),
+            F = Classes.createConstructor(body),
             obj = new F(123); // jshint ignore:line
 
         assert.isTrue(spy.calledOnce);

@@ -6,6 +6,12 @@ describe('Static', function() {
 
         Classes.decl('Test', {
 
+            public: {
+                getStaticField: function() {
+                    return this.__self.getFullName() + '.field === ' + this.__self.field;
+                }
+            },
+
             private: {
                 getName: function() {
                     return 'Test';
@@ -43,5 +49,10 @@ describe('Static', function() {
 
     it('через this можно создать экземпляр класса', function() {
         assert.strictEqual(Classes.Test.getInstance().getName(), 'Test');
+    });
+
+    it('у экземпляра класса есть доступ к приватной статической области видимости через __self', function() {
+        var test = new Classes.Test();
+        assert.strictEqual(test.getStaticField(), 'Classes.Test.field === 123');
     });
 });

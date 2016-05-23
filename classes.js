@@ -8,6 +8,11 @@ var Classes = (function() {
     _.testMode = false;
 
     /**
+     * Хранилище приватных конструкторов
+     */
+    _.constructors = {};
+
+    /**
      * Модификаторы доступа
      */
     _.PUBLIC = 'public';
@@ -220,6 +225,7 @@ var Classes = (function() {
         _.assign(scope.private, body.private || {}, true);
 
         scope.private.__base = base;
+        scope.private.__self = _.constructors[body.staticPrivate.__fullName];
 
         return scope;
     };
@@ -430,6 +436,7 @@ var Classes = (function() {
             body = _.addSystemStaticMethods(fullName, body);
             constructor = _.createConstructor(body);
 
+            _.constructors[fullName] = constructor.private;
             this[name] = _.testMode ? constructor.private : constructor.public;
 
             return this[name];

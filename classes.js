@@ -362,24 +362,29 @@ var Classes = (function() {
      * @returns {Function}
      */
     _.createConstructor = function(body) {
-        var PublicConstructor = function() {
-                var scope = _.construct(body, arguments, _.PUBLIC);
+        var constructor = {};
 
-                scope.public.constructor = PublicConstructor;
+        // Публичный конструктор
+        constructor.public = function() {
+            var scope = _.construct(body, arguments, _.PUBLIC);
 
-                return scope.public;
-            },
-            PrivateConstructor = function() {
-                var scope = _.construct(body, arguments, _.PRIVATE);
+            scope.public.constructor = constructor.public;
 
-                scope.public.constructor = PublicConstructor;
+            return scope.public;
+        };
 
-                return scope.private;
-            };
+        // Приватный конструктор
+        constructor.private = function() {
+            var scope = _.construct(body, arguments, _.PRIVATE);
 
-        _.createStaticScope(body, PublicConstructor, PrivateConstructor);
+            scope.private.constructor = constructor.private;
 
-        return _.testMode ? PrivateConstructor : PublicConstructor;
+            return scope.private;
+        };
+
+        _.createStaticScope(body, constructor.public, constructor.private);
+
+        return constructor;
     };
 
     /* --------------------------------------  ПРОСТРАНСТВА ИМЁН  ------------------------------------- */
@@ -416,14 +421,16 @@ var Classes = (function() {
          * @returns {Object}
          */
         decl: function(name, body) {
-            var fullName = this.getFullName() + '.' + name;
+            var fullName = this.getFullName() + '.' + name, constructor;
 
             if (this.hasOwnProperty(name)) {
                 throw new Error('Classes. Не удалось создать класс: имя ' + fullName + ' уже занято.');
             }
 
             body = _.addSystemStaticMethods(fullName, body);
-            this[name] = _.createConstructor(body);
+            constructor = _.createConstructor(body);
+
+            this[name] = _.testMode ? constructor.private : constructor.public;
 
             return this[name];
         }

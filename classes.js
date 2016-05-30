@@ -142,10 +142,9 @@ var Classes = (function() {
      * @param {Object} obj - Объект назначения
      * @param {Object} source - Исходный объект
      * @param {Object} context - Контекст для функций
-     * @param {Boolean} isFullClone - Полностью скопировать объект
      * @returns {Object}
      */
-    _.assignExternalInterface = function(obj, source, context, isFullClone) {
+    _.assignExternalInterface = function(obj, source, context) {
         var ignore = ['constructor'], key, value;
 
         for (key in source) {
@@ -153,7 +152,7 @@ var Classes = (function() {
                 if (_.isFunction(source[key])) {
                     value = _.bind(context, obj, source[key]);
                 } else {
-                    value = isFullClone ? _.clone(source[key]) : source[key];
+                    value = source[key];
                 }
 
                 Object.defineProperty(obj, key, {
@@ -383,7 +382,7 @@ var Classes = (function() {
         constructor.private = function() {
             var scope = _.construct(body, arguments, _.PRIVATE);
 
-            scope.private.constructor = constructor.private;
+            scope.private.constructor = constructor.public;
 
             return scope.private;
         };

@@ -51,6 +51,12 @@ describe('Static', function() {
         assert.strictEqual(Classes.Test.getInstance().getName(), 'Test');
     });
 
+    // it.only('получение публичной обёртки', function() {
+    //     var instance = Classes.Test.getInstance();
+    //
+    //     console.log(instance.__getPublicWrapper());
+    // });
+
     it('у экземпляра класса есть доступ к приватной статической области видимости через __self', function() {
         var test = new Classes.Test();
         assert.strictEqual(test.getStaticField(), 'Classes.Test.field === 123');

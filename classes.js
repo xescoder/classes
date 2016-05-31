@@ -224,7 +224,39 @@ var Classes = (function() {
         _.assign(scope.private, body.private || {}, true);
 
         scope.private.__base = base;
+        scope.private.__public = scope.public;
+        scope.private.__protected = scope.protected;
         scope.private.__self = _.constructors[body.staticPrivate.__fullName];
+
+        scope.protected.getPublicInterface = function() {
+            if (_.testMode) {
+                return this;
+            }
+
+            var base = {}, externalInterface;
+
+            if (this.__base.getPublicInterface) {
+                base = this.__base.getPublicInterface();
+            }
+
+            externalInterface = Object.create(base);
+            _.assignExternalInterface(externalInterface, this.__public, this);
+
+            return externalInterface;
+        };
+
+        scope.private.getProtectedInterface = function() {
+            if (_.testMode) {
+                return this;
+            }
+
+            var externalInterface = Object.create(this.__base);
+
+            _.assignExternalInterface(externalInterface, this.__public, this);
+            _.assignExternalInterface(externalInterface, this.__protected, this);
+
+            return externalInterface;
+        };
 
         return scope;
     };

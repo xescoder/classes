@@ -111,7 +111,18 @@ var Classes = (function() {
     _.bind = function(context, fakeContext, func) {
         return function() {
             var res = func.apply(context, arguments);
-            return res === context ? fakeContext : res;
+
+            // Защита от раскрытия this в методах экземпляра
+            if (res === context) {
+                return fakeContext;
+            }
+
+            // Защита от раскрытия this в методах класса
+            if (_.isObject(res) && res.__public && res.__base) {
+                return _.constructPublicByPrivate(res);
+            }
+
+            return res;
         };
     };
 
@@ -228,36 +239,6 @@ var Classes = (function() {
         scope.private.__protected = scope.protected;
         scope.private.__self = _.constructors[body.staticPrivate.__fullName];
 
-        scope.protected.getPublicInterface = function() {
-            if (_.testMode) {
-                return this;
-            }
-
-            var base = {}, externalInterface;
-
-            if (this.__base.getPublicInterface) {
-                base = this.__base.getPublicInterface();
-            }
-
-            externalInterface = Object.create(base);
-            _.assignExternalInterface(externalInterface, this.__public, this);
-
-            return externalInterface;
-        };
-
-        scope.private.getProtectedInterface = function() {
-            if (_.testMode) {
-                return this;
-            }
-
-            var externalInterface = Object.create(this.__base);
-
-            _.assignExternalInterface(externalInterface, this.__public, this);
-            _.assignExternalInterface(externalInterface, this.__protected, this);
-
-            return externalInterface;
-        };
-
         return scope;
     };
 
@@ -282,6 +263,8 @@ var Classes = (function() {
 
         if (scopeType === _.PROTECTED) {
             scope.protected = Object.create(base.protected || base.public);
+            scope.protected.__public = scope.public;
+
             _.assign(scope.protected, scope.public);
             _.assignExternalInterface(scope.protected, internalScope.protected, internalScope.private);
         }
@@ -322,6 +305,28 @@ var Classes = (function() {
         }
 
         return scopeType === _.PRIVATE ? scope : _.createExternalScope(scope, base, scopeType);
+    };
+
+    /**
+     * Создаёт публичный интерфейс объекта по приватному скопу
+     *
+     * @param {Object} privateScope - приватная область видимости объекта
+     * @return {Object}
+     */
+    _.constructPublicByPrivate = function(privateScope) {
+        var scope = {
+                private: privateScope,
+                public: privateScope.__public
+            },
+            base = {
+                public: privateScope.__base.__public || {}
+            },
+            externalScope = _.testMode ? scope : _.createExternalScope(scope, base, _.PUBLIC),
+            external = _.testMode ? externalScope.private : externalScope.public;
+
+        external.constructor = privateScope.constructor;
+
+        return external;
     };
 
     /**

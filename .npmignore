@@ -1,0 +1,7 @@
+.git
+.githooks
+quality_control
+.gitignore
+.jscs.json
+.jshint-groups.js
+.jshintrc

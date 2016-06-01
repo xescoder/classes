@@ -25,12 +25,10 @@ describe('Classes', function() {
         assert.isFunction(Classes.name);
         assert.isFunction(Classes.is);
         assert.isFunction(Classes.getType);
-        assert.isFunction(Classes.getFullName);
 
         assert.equal(Classes.decl.length, 2, 'Classes.decl должен принимать 2 аргумента');
         assert.equal(Classes.name.length, 1, 'Classes.name должен принимать 1 аргумент');
         assert.equal(Classes.is.length, 2, 'Classes.is должен принимать 2 аргумента');
         assert.equal(Classes.getType.length, 1, 'Classes.getType должен принимать 1 аргумент');
-        assert.equal(Classes.getFullName.length, 0, 'Classes.getFullName не должен принимать аргументов');
     });
 });

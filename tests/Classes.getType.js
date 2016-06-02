@@ -11,6 +11,14 @@ describe('Classes.getType', function() {
         });
     });
 
+    it('является функцией', function() {
+        assert.isFunction(Classes.getType);
+    });
+
+    it('принимает 1 аргумент', function() {
+        assert.strictEqual(Classes.getType.length, 1);
+    });
+
     it('должен возвращать Undefined для undefined', function() {
         var type = Classes.getType(undefined);
         assert.strictEqual(type, 'Undefined');

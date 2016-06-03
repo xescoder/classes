@@ -4,7 +4,7 @@ describe('System static', function() {
     before(function() {
         Classes = getClasses();
 
-        Classes.decl('Base', {});
+        Classes.decl('Base');
 
         Classes.decl('Test', {
 

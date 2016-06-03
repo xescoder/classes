@@ -469,6 +469,7 @@ var Classes = (function() {
                 throw new Error('Classes. Не удалось создать класс: имя ' + fullName + ' уже занято.');
             }
 
+            body = body || {};
             body = _.addSystemStaticMethods(fullName, body);
             constructor = _.createConstructor(body);
 

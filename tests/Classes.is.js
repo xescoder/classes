@@ -4,7 +4,7 @@ describe('Classes.is', function() {
     before(function() {
         Classes = getClasses();
 
-        Classes.decl('A', {});
+        Classes.decl('A');
 
         Classes.decl('B', {
             extend: Classes.A
@@ -14,7 +14,7 @@ describe('Classes.is', function() {
             extend: Classes.B
         });
 
-        Classes.decl('D', {});
+        Classes.decl('D');
 
         obj = new Classes.C();
     });

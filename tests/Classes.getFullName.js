@@ -25,7 +25,7 @@ describe('Classes.getFullName', function() {
 
     it('возвращает составное имя для класса', function() {
         Classes.name('System');
-        Classes.System.decl('Console', {});
+        Classes.System.decl('Console');
         assert.equal(Classes.System.Console.getFullName(), 'Classes.System.Console');
     });
 });

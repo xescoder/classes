@@ -22,9 +22,7 @@ describe('Classes', function() {
         assert.deepEqual(Classes, reference);
 
         assert.isFunction(Classes.decl);
-        assert.isFunction(Classes.name);
 
         assert.equal(Classes.decl.length, 2, 'Classes.decl должен принимать 2 аргумента');
-        assert.equal(Classes.name.length, 1, 'Classes.name должен принимать 1 аргумент');
     });
 });

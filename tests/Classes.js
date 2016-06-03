@@ -23,10 +23,8 @@ describe('Classes', function() {
 
         assert.isFunction(Classes.decl);
         assert.isFunction(Classes.name);
-        assert.isFunction(Classes.is);
 
         assert.equal(Classes.decl.length, 2, 'Classes.decl должен принимать 2 аргумента');
         assert.equal(Classes.name.length, 1, 'Classes.name должен принимать 1 аргумент');
-        assert.equal(Classes.is.length, 2, 'Classes.is должен принимать 2 аргумента');
     });
 });

@@ -79,11 +79,19 @@ describe('Classes.getType', function() {
         assert.strictEqual(type, 'Class');
     });
 
+    it('должен возвращать Class при вызове напрямую у класса', function() {
+        assert.strictEqual(Classes.Test.getType(), 'Class');
+    });
+
     it('должен возвращать Namespace для пространства имён', function() {
         var value = Classes.Namespace,
             type = Classes.getType(value);
 
         assert.strictEqual(type, 'Namespace');
+    });
+
+    it('должен возвращать Namespace при вызове напрямую у простанства имён', function() {
+        assert.strictEqual(Classes.Namespace.getType(), 'Namespace');
     });
 
     it('должен возвращать название типа для экземпляра класса', function() {

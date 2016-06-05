@@ -18,6 +18,11 @@ describe('Classes.decl', function() {
         assert.equal(Classes.Test.getType(), 'Class');
     });
 
+    it('возвращает декларированный класс', function() {
+        var Test = Classes.decl('Test', {});
+        assert.strictEqual(Test, Classes.Test);
+    });
+
     it('позволяет задекларировать класс внутри существующего пространства имён', function() {
         Classes.name('System.IO');
         Classes.System.IO.decl('StreamWriter', {});

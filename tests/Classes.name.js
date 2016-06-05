@@ -22,6 +22,11 @@ describe('Classes.name', function() {
         assert.strictEqual(Classes.System.General.Math.Numbers.getType(), 'Namespace');
     });
 
+    it('возвращает создаваемое пространство имён', function() {
+        var System = Classes.name('System');
+        assert.strictEqual(System, Classes.System);
+    });
+
     it('есть возможность создать пространство имён внутри существующего', function() {
         Classes.name('System.General');
         Classes.System.General.name('Math.Numbers');

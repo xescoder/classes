@@ -67,7 +67,7 @@ describe('Экземпляр класса', function() {
         assert.strictEqual(sum.value(), 3);
     });
 
-    it('публичный интерфейс объекта неизменяем', function() {
+    it('невозможно изменить публичный интерфейс экземпляра', function() {
         var sum = new Classes.Sum(1, 2);
 
         sum.value = 123;

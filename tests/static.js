@@ -1,62 +1,191 @@
-describe('Static', function() {
-    var Classes;
+describe('Класс', function() {
+    var Classes, guidBody;
 
-    before(function() {
+    beforeEach(function() {
         Classes = getClasses();
 
-        Classes.decl('Test', {
+        Classes.decl('Base');
+        Classes.decl('Test');
+
+        guidBody = {
+            extend: Classes.Base,
 
             public: {
-                getStaticField: function() {
-                    return this.__self.getFullName() + '.field === ' + this.__self.field;
+                constructor: function() {
+                    throw new Error('создать экземпляр можно только с помощью метода getInstance');
+                },
+
+                getId: function() {
+                    return this._id;
+                },
+
+                getStaticFields: function() {
+                    return Object.keys(this.__self);
                 }
             },
 
             private: {
-                getName: function() {
-                    return 'Test';
+                _id: 0,
+
+                constructor: function() {
+                    this._id = this.__self._next();
                 }
             },
 
             staticPublic: {
-                getStaticField: function() {
-                    return this.field;
-                },
-
                 getInstance: function() {
                     return new this();
+                },
+
+                getInstanceFields: function() {
+                    var instance = this.getInstance();
+                    return Object.keys(instance);
+                },
+
+                getLast: function() {
+                    return this._guid;
                 }
             },
 
             staticPrivate: {
-                field: 123
+                _guid: 1,
+
+                _next: function() {
+                    return this._guid++;
+                }
             }
+        };
 
-        });
+        Classes.decl('GUID', guidBody);
     });
 
-    it('есть доступ к статичным методам через класс', function() {
-        assert.isFunction(Classes.Test.getStaticField);
+    it('создаваемый класс является функцией', function() {
+        assert.isFunction(Classes.GUID);
     });
 
-    it('статические методы имеют доступ к приватым статическим свойствам', function() {
-        assert.strictEqual(Classes.Test.getStaticField(), 123);
+    it('внешний статичный интерфейс класса соответствует заявленному', function() {
+        var reference = {};
+
+        // Определённые в staticPublic методы
+        reference.getInstance = Classes.GUID.getInstance;
+        reference.getInstanceFields = Classes.GUID.getInstanceFields;
+        reference.getLast = Classes.GUID.getLast;
+
+        // Стандартные методы
+        reference.getBody = Classes.GUID.getBody;
+        reference.getExtend = Classes.GUID.getExtend;
+        reference.getFullName = Classes.GUID.getFullName;
+        reference.getType = Classes.GUID.getType;
+        reference.is = Classes.GUID.is;
+
+        var classFields = Object.keys(Classes.GUID),
+            referenceFields = Object.keys(reference);
+
+        assert.deepEqual(classFields, referenceFields);
     });
 
-    it('нет доступа к приватным статическим свойствам', function() {
-        assert.isUndefined(Classes.Test.field);
+    it('метод getBody возвращает тело класса', function() {
+        assert.deepEqual(Classes.GUID.getBody(), guidBody);
     });
 
-    it('у экземпляра класса есть доступ к приватной статической области видимости через __self', function() {
-        var test = new Classes.Test();
-        assert.strictEqual(test.getStaticField(), 'Classes.Test.field === 123');
+    it('метод getExtend возвращает базовый класс', function() {
+        assert.strictEqual(Classes.GUID.getExtend(), Classes.Base);
     });
 
-    it('через this можно создать экземпляр класса', function() {
-        assert.strictEqual(Classes.Test.getInstance().getStaticField(), 'Classes.Test.field === 123');
+    it('метод getFullName возвращает полное имя класса', function() {
+        assert.strictEqual(Classes.GUID.getFullName(), 'Classes.GUID');
     });
 
-    it('созданный в статичном методе объект не раскрывает приватной области видимости', function() {
-        assert.isUndefined(Classes.Test.getInstance().getName);
+    it('метод getType возвращает Class', function() {
+        assert.strictEqual(Classes.GUID.getType(), 'Class');
+    });
+
+    it('метод is возвращает true если класс унаследован от переданного в параметре', function() {
+        assert.isTrue(Classes.GUID.is(Classes.Base));
+    });
+
+    it('метод is возвращает false если класс не унаследован от переданного в параметре', function() {
+        assert.isFalse(Classes.GUID.is(Classes.Test));
+    });
+
+    it('из внешнего окружения нет доступа к приватным статическим полям', function() {
+        assert.isUndefined(Classes.GUID._id);
+        assert.isUndefined(Classes.GUID._next);
+        assert.strictEqual(Classes.GUID.getLast(), 1);
+    });
+
+    it('из внешнего окружения невозможно переопределить приватные статические поля', function() {
+        Classes.GUID._id = 5;
+        assert.strictEqual(Classes.GUID.getLast(), 1);
+    });
+
+    it('из внешнего окружения невозможно переопределить публичный интерфейс класса', function() {
+        delete Classes.GUID.getInstance;
+        Classes.GUID.getLast = function() { return -10; };
+
+        assert.isFunction(Classes.GUID.getInstance);
+        assert.strictEqual(Classes.GUID.getLast(), 1);
+    });
+
+    it('внутри статичного метода через this можно создать экземпляр класса', function() {
+        var guid = Classes.GUID.getInstance(),
+            reference = {
+                getId: guid.getId,
+                getStaticFields: guid.getStaticFields,
+                constructor: Classes.GUID
+            };
+
+        assert.deepEqual(guid, reference);
+    });
+
+    it('создаваемый через this в статичном методе экземпляр создаётся с помощью приватного конструктора', function() {
+        var guid1 = Classes.GUID.getInstance(),
+            guid2 = Classes.GUID.getInstance(),
+            guid3 = Classes.GUID.getInstance();
+
+        assert.strictEqual(guid1.getId(), 1);
+        assert.strictEqual(guid2.getId(), 2);
+        assert.strictEqual(guid3.getId(), 3);
+    });
+
+    it('экземпляр класса имеет доступ к приватной статичной области класса через __self', function() {
+        var guid = Classes.GUID.getInstance(),
+            reference = [
+                'getInstance',
+                'getInstanceFields',
+                'getLast',
+                'getBody',
+                'getExtend',
+                'getFullName',
+                'getType',
+                'is',
+                '_guid',
+                '_next',
+                '__body',
+                '__extend',
+                '__fullName',
+                '__type',
+                '__extends'
+            ];
+
+        assert.deepEqual(guid.getStaticFields(), reference);
+    });
+
+    it('статичные методы имеею доступ к приватным полям объекта, создаваемого через this', function() {
+        var instanceFields = Classes.GUID.getInstanceFields(),
+            reference = [
+                '_id',
+                '__base',
+                '__public',
+                '__protected',
+                '__self',
+                'constructor'
+            ];
+
+        assert.deepEqual(instanceFields, reference);
+    });
+
+    it('возвращаемый из статичного метода экземпляр не раскрывает своей приватной области видимости', function() {
+        assert.isUndefined(Classes.GUID.getInstance()._id);
     });
 });

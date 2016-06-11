@@ -1,100 +1,106 @@
-describe('Inherit', function() {
+describe('Наследование', function() {
     var Classes;
 
     before(function() {
         Classes = getClasses();
 
-        Classes.decl('Animal', {
-
+        Classes.decl('Base', {
             public: {
-
-                constructor: function() {
-                    this._age = 0;
-                },
-
-                getAge: function() {
-                    return this._getAge();
-                },
-
-                getName: function() {
-                    return this._getName();
+                getParams: function() {
+                    return this._params;
                 }
-
             },
 
             protected: {
-
-                setAge: function(age) {
-                    this._age = age;
+                setParams: function(params) {
+                    this._params = params;
                 }
-
             },
 
             private: {
-
-                _name: 'TempName',
-
-                _getName: function() {
-                    return this._name;
-                }
-
+                _params: {}
             }
-
         });
 
-        Classes.decl('Test', {
-
-            extend: Classes.Animal,
+        Classes.decl('Storage', {
+            extend: Classes.Base,
 
             public: {
-
-                getPublicBaseMethod: function() {
-                    return this.__base.getAge;
-                },
-
-                getProtectedBaseMethod: function() {
-                    return this.__base.setAge;
-                },
-
-                getPrivateBaseMethod: function() {
-                    return this.__base._getName;
-                },
-
-                getPrivateBaseField: function() {
-                    return this.__base._name;
+                get: function(param) {
+                    return this.getParams()[param];
                 }
+            },
 
+            protected: {
+                constructor: function(params) {
+                    this.setParams(params);
+                },
+
+                set: function(param, value) {
+                    var params = this.getParams();
+                    params[param] = value;
+                    this.setParams(params);
+                }
             }
+        });
 
+        Classes.decl('JsonStorage', {
+            extend: Classes.Storage,
+
+            public: {
+                constructor: function(json) {
+                    if (!json) {
+                        return;
+                    }
+
+                    var params = JSON.parse(json);
+                    this.__base.constructor(params);
+                },
+
+                toJson: function() {
+                    var params = this.getParams();
+                    return JSON.stringify(params);
+                },
+
+                getBase: function() {
+                    return this.__base;
+                },
+
+                toString: function() {
+                    return this.toJson();
+                }
+            }
         });
     });
 
-    it('публичный интерфейс экземпляра наследуюется от базового класса', function() {
-        var test = new Classes.Test();
-
-        assert.property(test, 'getAge');
-        assert.isFunction(test.getAge);
-
-        assert.property(test, 'getName');
-        assert.isFunction(test.getName);
+    it('статичный метод is возвращает true для любого родительского класса из цепочки наследования', function() {
+        assert.isTrue(Classes.JsonStorage.is(Classes.Storage));
+        assert.isTrue(Classes.JsonStorage.is(Classes.Base));
     });
 
-    it('y наследника есть доступ к публичным методам базового класса', function() {
+    it('публичный интерфейс экземпляра наследуется от всей цепочки базовых классов', function() {
+        var storage = new Classes.JsonStorage();
+
+        assert.isFunction(storage.get);
+        assert.isFunction(storage.getParams);
+    });
+
+    it.skip('y наследника есть доступ к публичным методам базового класса', function() {
         var test = new Classes.Test();
         assert.isFunction(test.getPublicBaseMethod());
     });
 
-    it('y наследника есть доступ к защищённым методам базового класса', function() {
+    it.skip('y наследника есть доступ к защищённым методам базового класса', function() {
         var test = new Classes.Test();
         assert.isFunction(test.getProtectedBaseMethod());
     });
 
-    it('у наследника нет доступа к приватным методам базового класса', function() {
+    it.skip('у наследника нет доступа к приватным методам базового класса', function() {
         var test = new Classes.Test();
         assert.isUndefined(test.getPrivateBaseMethod());
     });
 
-    it('у наследника нет доступа к приватным полям базового класса', function() {
+    it.skip('у наследника нет доступа к приватным полям базового класса', function() {
         var test = new Classes.Test();
         assert.isUndefined(test.getPrivateBaseField());
     });

@@ -28,11 +28,21 @@ describe('Наследование', function() {
             public: {
                 get: function(param) {
                     return this.getParams()[param];
+                },
+
+                toString: function() {
+                    return this._toJson();
                 }
             },
 
             protected: {
                 constructor: function(params) {
+                    if (!params) {
+                        return;
+                    }
+
+                    console.log('!!!!!!!!!!!!!!!!!!!!!!!');
+
                     this.setParams(params);
                 },
 
@@ -41,67 +51,120 @@ describe('Наследование', function() {
                     params[param] = value;
                     this.setParams(params);
                 }
+            },
+
+            private: {
+                _toJson: function() {
+                    return JSON.stringify(this.getParams());
+                }
             }
         });
 
-        Classes.decl('JsonStorage', {
+        Classes.decl('Test', {
             extend: Classes.Storage,
 
             public: {
-                constructor: function(json) {
-                    if (!json) {
-                        return;
-                    }
-
-                    var params = JSON.parse(json);
+                constructor: function(params) {
                     this.__base.constructor(params);
-                },
-
-                toJson: function() {
-                    var params = this.getParams();
-                    return JSON.stringify(params);
                 },
 
                 getBase: function() {
                     return this.__base;
                 },
 
-                toString: function() {
-                    return this.toJson();
+                getPublicBaseFields: function() {
+                    return {
+                        get: this.get,
+                        toString: this.toString,
+                        getParams: this.getParams
+                    };
+                },
+
+                getProtectedBaseFields: function() {
+                    return {
+                        set: this.set,
+                        setParams: this.setParams
+                    };
+                },
+
+                getPrivateBaseFields: function() {
+                    return {
+                        _toJson: this._toJson,
+                        _params: this._params
+                    };
                 }
             }
         });
     });
 
     it('статичный метод is возвращает true для любого родительского класса из цепочки наследования', function() {
-        assert.isTrue(Classes.JsonStorage.is(Classes.Storage));
-        assert.isTrue(Classes.JsonStorage.is(Classes.Base));
+        assert.isTrue(Classes.Test.is(Classes.Storage));
+        assert.isTrue(Classes.Test.is(Classes.Base));
     });
 
     it('публичный интерфейс экземпляра наследуется от всей цепочки базовых классов', function() {
-        var storage = new Classes.JsonStorage();
+        var storage = new Classes.Test();
 
         assert.isFunction(storage.get);
+        assert.isFunction(storage.toString);
         assert.isFunction(storage.getParams);
     });
 
-    it.skip('y наследника есть доступ к публичным методам базового класса', function() {
-        var test = new Classes.Test();
-        assert.isFunction(test.getPublicBaseMethod());
+    it('y наследника через this есть доступ к публичным методам базовых классов', function() {
+        var test = new Classes.Test(),
+            fields = test.getPublicBaseFields();
+
+        assert.isFunction(fields.get);
+        assert.isFunction(fields.toString);
+        assert.isFunction(fields.getParams);
     });
 
-    it.skip('y наследника есть доступ к защищённым методам базового класса', function() {
-        var test = new Classes.Test();
-        assert.isFunction(test.getProtectedBaseMethod());
+    it('y наследника через this есть доступ к защищённым методам базовых классов', function() {
+        var test = new Classes.Test(),
+            fields = test.getProtectedBaseFields();
+
+        assert.isFunction(fields.set);
+        assert.isFunction(fields.setParams);
     });
 
-    it.skip('у наследника нет доступа к приватным методам базового класса', function() {
-        var test = new Classes.Test();
-        assert.isUndefined(test.getPrivateBaseMethod());
+    it('у наследника нет доступа к приватным полям базовых классов', function() {
+        var test = new Classes.Test(),
+            fields = test.getPrivateBaseFields();
+
+        assert.isUndefined(fields._toJson);
+        assert.isUndefined(fields._params);
     });
 
-    it.skip('у наследника нет доступа к приватным полям базового класса', function() {
-        var test = new Classes.Test();
-        assert.isUndefined(test.getPrivateBaseField());
+    it('наследник может обращаться к полям базового класса через __base', function() {
+        var test = new Classes.Test(),
+            base = test.getBase();
+
+        assert.isFunction(base.get);
+        assert.isFunction(base.toString);
+        assert.isFunction(base.getParams);
+        assert.isFunction(base.set);
+        assert.isFunction(base.setParams);
+    });
+
+    it('__base не раскрывает приватной реализации базового класса', function() {
+        var test = new Classes.Test(),
+            base = test.getBase();
+
+        assert.isUndefined(base._toJson);
+        assert.isUndefined(base._params);
+    });
+
+    it.skip('в конструкторе класса можно вызывать конструктор базового класса', function() {
+        var test = new Classes.Test({
+            param1: 'test',
+            param2: 123,
+            param3: false
+        });
+
+        assert.deepEqual(test.getParams(), {
+            param1: 'test',
+            param2: 123,
+            param3: false
+        });
     });
 });

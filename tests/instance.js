@@ -31,19 +31,29 @@ describe('Экземпляр класса', function() {
                 }
             },
 
-            private: {
-                _sum: 0,
-
+            protected: {
                 _add: function(num) {
                     this._sum += num;
                 }
+            },
+
+            private: {
+                _sum: 0
             }
         });
     });
 
-    it('поле constructor создаваемого экземпляра указывает на класс', function() {
-        var sum = new Classes.Sum();
-        assert.strictEqual(sum.constructor, Classes.Sum);
+    it('внешний интерфейс создаваемого экземпляра соответствует заявленому в public', function() {
+        var sum = new Classes.Sum(),
+            reference = {
+                add: sum.add,
+                value: sum.value,
+                valueOf: sum.valueOf,
+                toString: sum.toString,
+                constructor: Classes.Sum
+            };
+
+        assert.deepEqual(sum, reference);
     });
 
     it('по умолчанию поля класса инициализируются определёнными в декларации значениями', function() {
@@ -51,7 +61,7 @@ describe('Экземпляр класса', function() {
         assert.strictEqual(sum.value(), 0);
     });
 
-    it('из внешнего окружения нет доступа к приватным полям', function() {
+    it('из внешнего окружения нет доступа к приватным и защищённым полям', function() {
         var sum = new Classes.Sum(1, 2);
 
         assert.isUndefined(sum._sum);
@@ -60,11 +70,15 @@ describe('Экземпляр класса', function() {
         assert.strictEqual(sum.value(), 3);
     });
 
-    it('приватные поля невозможно перезаписать из внешнего окружения', function() {
+    it('приватные и защищённые поля невозможно перезаписать из внешнего окружения', function() {
         var sum = new Classes.Sum(1, 2);
-        sum._sum = -4;
 
-        assert.strictEqual(sum.value(), 3);
+        sum._sum = -4;
+        sum._add = _.noop;
+
+        sum.add(5);
+
+        assert.strictEqual(sum.value(), 8);
     });
 
     it('невозможно изменить публичный интерфейс экземпляра', function() {
@@ -108,7 +122,7 @@ describe('Экземпляр класса', function() {
         assert.strictEqual(sum.value(), 10);
     });
 
-    it('возвращая this функции не раскрываю приватного контекста экземпляра', function() {
+    it('возвращая this функции не раскрываю приватного и защищённого контекста экземпляра', function() {
         var sum = new Classes.Sum();
 
         sum = sum.add(1);

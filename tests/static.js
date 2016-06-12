@@ -11,7 +11,7 @@ describe('Класс', function() {
             extend: Classes.Base,
 
             public: {
-                constructor: function() {
+                init: function() {
                     throw new Error('создать экземпляр можно только с помощью метода getInstance');
                 },
 
@@ -27,7 +27,7 @@ describe('Класс', function() {
             private: {
                 _id: 0,
 
-                constructor: function() {
+                init: function() {
                     this._id = this.__self._next();
                 }
             },

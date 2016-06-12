@@ -6,9 +6,7 @@ describe('Classes.getType', function() {
 
         Classes.name('Namespace');
 
-        Classes.decl('Test', {
-            public: { constructor: function() {} }
-        });
+        Classes.decl('Test');
     });
 
     it('является функцией', function() {

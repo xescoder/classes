@@ -6,7 +6,7 @@ describe('Экземпляр класса', function() {
 
         Classes.decl('Sum', {
             public: {
-                constructor: function() {
+                init: function() {
                     this.add.apply(this, arguments);
                 },
 
@@ -102,7 +102,7 @@ describe('Экземпляр класса', function() {
                 value: sum.value,
                 valueOf: sum.valueOf,
                 toString: sum.toString,
-                constructor: sum.constructor
+                constructor: Classes.Sum
             };
 
         sum = sum.add(1);

@@ -36,7 +36,7 @@ describe('Наследование', function() {
             },
 
             protected: {
-                constructor: function(params) {
+                init: function(params) {
                     if (!params) {
                         return;
                     }
@@ -64,8 +64,8 @@ describe('Наследование', function() {
             extend: Classes.Storage,
 
             public: {
-                constructor: function(params) {
-                    this.__base.constructor(params);
+                init: function(params) {
+                    // this.__base.init(params);
                 },
 
                 getBase: function() {

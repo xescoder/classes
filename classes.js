@@ -156,7 +156,7 @@ var Classes = (function() {
      * @returns {Object}
      */
     _.assignExternalInterface = function(obj, source, context) {
-        var ignore = ['constructor'], key, value;
+        var ignore = [], key, value;
 
         for (key in source) {
             if (source.hasOwnProperty(key) && (ignore.indexOf(key) === -1)) {
@@ -292,15 +292,15 @@ var Classes = (function() {
             })[scopeType];
 
         for (var i = 0; i < mods.length; i++) {
-            if (_.hasOwn(scope[mods[i]], 'constructor') && _.isFunction(scope[mods[i]].constructor)) {
-                scope[mods[i]].constructor.apply(scope.private, args);
+            if (_.hasOwn(scope[mods[i]], 'init') && _.isFunction(scope[mods[i]].init)) {
+                scope[mods[i]].init.apply(scope.private, args);
                 break;
             }
         }
 
         for (var mod in scope) {
             if (_.hasOwn(scope, mod)) {
-                delete scope[mod].constructor;
+                delete scope[mod].init;
             }
         }
 

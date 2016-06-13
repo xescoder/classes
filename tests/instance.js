@@ -81,18 +81,19 @@ describe('Экземпляр класса', function() {
         assert.strictEqual(sum.value(), 8);
     });
 
-    it('невозможно изменить публичный интерфейс экземпляра', function() {
+    it('изменение внешнего интерфейса никак не отражается на работе экземпляра', function() {
         var sum = new Classes.Sum(1, 2);
 
-        sum.value = 123;
-        delete sum.add;
+        sum.value = function() {
+            return 'fake';
+        };
 
-        assert.isFunction(sum.value);
-        assert.isFunction(sum.add);
+        // Изменённая функция возвращает фейковое значение
+        assert.strictEqual(sum.value(), 'fake');
 
-        sum.value = function() { return -1; };
-
-        assert.strictEqual(sum.value(), 3);
+        // Но это никак не отражается на работе других функций, использующих данную
+        assert.strictEqual(Number(sum), 3);
+        assert.strictEqual(String(sum), '3');
     });
 
     it('возвращая this функции возвращают публичный интерфейс экземпляра', function() {

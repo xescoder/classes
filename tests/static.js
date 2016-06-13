@@ -119,23 +119,26 @@ describe('Класс', function() {
         assert.strictEqual(Classes.GUID.getLast(), 1);
     });
 
-    it('из внешнего окружения невозможно переопределить публичный интерфейс класса', function() {
-        delete Classes.GUID.getInstance;
-        Classes.GUID.getLast = function() { return -10; };
+    it('изменение внешнего интерфейса никак не отражается на работе класса', function() {
+        Classes.GUID.getInstance = function() {
+            return null;
+        };
 
-        assert.isFunction(Classes.GUID.getInstance);
-        assert.strictEqual(Classes.GUID.getLast(), 1);
+        var instanceFields = Classes.GUID.getInstanceFields();
+
+        assert.isArray(instanceFields);
+        assert.include(instanceFields, 'constructor');
     });
 
     it('внутри статичного метода через this можно создать экземпляр класса', function() {
         var guid = Classes.GUID.getInstance(),
-            reference = {
-                getId: guid.getId,
-                getStaticFields: guid.getStaticFields,
-                constructor: Classes.GUID
-            };
+            reference = [
+                'getId',
+                'getStaticFields',
+                'constructor'
+            ];
 
-        assert.deepEqual(guid, reference);
+        assert.deepEqual(Object.keys(guid), reference);
     });
 
     it('создаваемый через this в статичном методе экземпляр создаётся с помощью приватного конструктора', function() {

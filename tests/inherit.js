@@ -41,8 +41,6 @@ describe('Наследование', function() {
                         return;
                     }
 
-                    console.log('!!!!!!!!!!!!!!!!!!!!!!!');
-
                     this.setParams(params);
                 },
 
@@ -65,7 +63,7 @@ describe('Наследование', function() {
 
             public: {
                 init: function(params) {
-                    // this.__base.init(params);
+                    this.__base.init(params);
                 },
 
                 getBase: function() {
@@ -154,7 +152,7 @@ describe('Наследование', function() {
         assert.isUndefined(base._params);
     });
 
-    it.skip('в конструкторе класса можно вызывать конструктор базового класса', function() {
+    it('в конструкторе класса можно вызывать конструктор базового класса', function() {
         var test = new Classes.Test({
             param1: 'test',
             param2: 123,

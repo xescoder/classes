@@ -156,22 +156,13 @@ var Classes = (function() {
      * @returns {Object}
      */
     _.assignExternalInterface = function(obj, source, context) {
-        var ignore = [], key, value;
-
-        for (key in source) {
-            if (source.hasOwnProperty(key) && (ignore.indexOf(key) === -1)) {
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
                 if (_.isFunction(source[key])) {
-                    value = _.bind(context, obj, source[key]);
+                    obj[key] = _.bind(context, obj, source[key]);
                 } else {
-                    value = source[key];
+                    obj[key] = source[key];
                 }
-
-                Object.defineProperty(obj, key, {
-                    configurable: false,
-                    enumerable: true,
-                    writable: false,
-                    value: value
-                });
             }
         }
 
@@ -213,6 +204,18 @@ var Classes = (function() {
     /* ------------------------------------------------  ФАБРИКИ  ---------------------------------------------- */
 
     /**
+     * Создаёт конструктор по умолчанию
+     *
+     * @private
+     * @returns {Function}
+     */
+    _.createDefaultInit = function() {
+        return function() {
+            this.__base && this.__base.init && this.__base.init();
+        };
+    };
+
+    /**
      * Создаёт внутреннюю область видимости объекта
      *
      * @private
@@ -234,10 +237,20 @@ var Classes = (function() {
         scope.private = Object.create(scope.protected);
         _.assign(scope.private, body.private || {}, true);
 
+        scope.public.init = scope.public.init || _.createDefaultInit();
+
         scope.private.__base = base;
         scope.private.__public = scope.public;
         scope.private.__protected = scope.protected;
         scope.private.__self = _.constructors[body.staticPrivate.__fullName];
+
+        scope.private.deleteInits = function() {
+            delete scope.public.init;
+            delete scope.protected.init;
+            delete scope.private.init;
+
+            delete scope.private.deleteInits;
+        };
 
         return scope;
     };
@@ -269,6 +282,18 @@ var Classes = (function() {
             _.assignExternalInterface(scope.protected, internalScope.protected, internalScope.private);
         }
 
+        scope.public.deleteInits = function() {
+            internalScope.private.deleteInits();
+
+            for (var mod in scope) {
+                if (_.hasOwn(scope, mod)) {
+                    delete scope[mod].init;
+                }
+            }
+
+            delete scope.public.deleteInits;
+        };
+
         return scope;
     };
 
@@ -277,32 +302,13 @@ var Classes = (function() {
      *
      * @private
      * @param {Object} body - Тело декларации класса
-     * @param {Object} args - Аргументы, передаваемые в конструктор
      * @param {String} scopeType - Необходимая область видимости
      * @returns {Object}
      */
-    _.construct = function(body, args, scopeType) {
+    _.construct = function(body, scopeType) {
         var baseBody = body.extend && body.extend.getBody(),
-            base = baseBody ? _.construct(baseBody, [], _.PROTECTED) : { public: {} },
-            scope = _.createInternalScope(body, base),
-            mods = ({
-                public: [_.PUBLIC],
-                protected: [_.PROTECTED, _.PUBLIC],
-                private: [_.PRIVATE, _.PROTECTED, _.PUBLIC]
-            })[scopeType];
-
-        for (var i = 0; i < mods.length; i++) {
-            if (_.hasOwn(scope[mods[i]], 'init') && _.isFunction(scope[mods[i]].init)) {
-                scope[mods[i]].init.apply(scope.private, args);
-                break;
-            }
-        }
-
-        for (var mod in scope) {
-            if (_.hasOwn(scope, mod)) {
-                delete scope[mod].init;
-            }
-        }
+            base = baseBody ? _.construct(baseBody, _.PROTECTED) : { public: {} },
+            scope = _.createInternalScope(body, base);
 
         return scopeType === _.PRIVATE ? scope : _.createExternalScope(scope, base, scopeType);
     };
@@ -325,6 +331,7 @@ var Classes = (function() {
             external = _.testMode ? externalScope.private : externalScope.public;
 
         external.constructor = privateScope.constructor;
+        delete external.deleteInits;
 
         return external;
     };
@@ -408,18 +415,22 @@ var Classes = (function() {
 
         // Публичный конструктор
         constructor.public = function() {
-            var scope = _.construct(body, arguments, _.PUBLIC);
+            var scope = _.construct(body, _.PUBLIC);
 
             scope.public.constructor = constructor.public;
+            scope.public.init.apply(scope.private, arguments);
+            scope.public.deleteInits();
 
             return scope.public;
         };
 
         // Приватный конструктор
         constructor.private = function() {
-            var scope = _.construct(body, arguments, _.PRIVATE);
+            var scope = _.construct(body, _.PRIVATE);
 
             scope.private.constructor = constructor.public;
+            scope.private.init.apply(scope.private, arguments);
+            scope.private.deleteInits();
 
             return scope.private;
         };
@@ -621,5 +632,4 @@ var Classes = (function() {
 
 if (module && module.parent) {
     module.exports = Classes;
-    return;
 }

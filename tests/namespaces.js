@@ -1,4 +1,4 @@
-describe('Namespaces', function() {
+describe('Пространства имён', function() {
     var Classes;
 
     beforeEach(function() {

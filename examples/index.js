@@ -1,15 +1,14 @@
+// При помощи C вы легко можете выстрелить себе в ногу. При помощи C++ это сделать сложнее, но если это произойдёт, вам оторвёт всю ногу целиком.
+// Бьярн Страуструп, автор C++
+
 var Classes = require('../classes');
 
 /* ----------------------------- БИБЛИОТЕКА (Пишется и поставляется Пупкиным В.) ---------------------------- */
 
 Classes.name('Lib');
 
-Classes.Lib.decl('Base', {
+Classes.Lib.decl('HashBase', {
     public: {
-        constructor: function() {
-            this._hash = 'empty';
-        },
-
         getHash: function() {
             return this._hash;
         }
@@ -35,10 +34,10 @@ Classes.Lib.decl('Base', {
 });
 
 Classes.Lib.decl('Hash', {
-    extend: Classes.Lib.Base,
+    extend: Classes.Lib.HashBase,
 
     public: {
-        constructor: function() {
+        init: function() {
             this.buildHash();
         },
 
@@ -50,29 +49,24 @@ Classes.Lib.decl('Hash', {
 
 /* --------------------------------- ПРИЛОЖЕНИЕ (Пишется Шапкиным Г.) ----------------------------- */
 
-Classes.name('App');
+var hash = new Classes.Lib.Hash();
 
-Classes.App.decl('Helpers', {
-    staticPublic: {
-        getHash: function() {
-            var hash = new Classes.Lib.Hash();
+// Попытка изменить приватное поле после инициализации
+hash._hash = {};
 
-            // Попытка изменить приватное поле после инициализации
-            hash._hash = null;
+// Да и вообще отстрелить себе чего-нибудь
+hash.getHash = function() {
+    return 'fake hash';
+};
 
-            // Да и вообще отстрелить себе чего-нибудь =)
-            hash.toString = function() {
-                return 'fake hash';
-            }
+// Неоднократно...
+delete hash.buildHash;
+hash._getRandom = 'rnd';
 
-            return String(hash);
-        }
-    }
-});
-
-// Выведет hash, сгенеренный библиотекой Пупкина,
+// Но как ни странно console.log выведет hash,
+// сгенеренный библиотекой Пупкина,
 // как-будто изменений Шапкина и не было.
 //
 // В Classes нельзя так просто взять и переопределить
 // чьё-нибудь приватное поле =)
-console.log(Classes.App.Helpers.getHash());
+console.log(String(hash));

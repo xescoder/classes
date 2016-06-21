@@ -61,7 +61,7 @@ var Classes = (function() {
         var copy, type;
 
         // Для простых типов, а также Null, Undefined и Function
-        if (value === null || typeof value !== 'object') {
+        if (!_.isObject(value)) {
             return value;
         }
 
@@ -85,9 +85,9 @@ var Classes = (function() {
 
         // Для всех остальных (Object)
         copy = {};
-        for (var attr in value) {
-            if (value.hasOwnProperty(attr)) {
-                copy[attr] = _.clone(value[attr]);
+        for (var key in value) {
+            if (_.hasOwn(value, key)) {
+                copy[key] = _.clone(value[key]);
             }
         }
 

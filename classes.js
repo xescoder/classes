@@ -575,11 +575,11 @@ var Classes = (function() {
      * @returns {Boolean}
      */
     $.is = function(obj, Type) {
-        if (!obj || typeof obj !== 'object' || typeof obj.constructor !== 'function') {
+        if (!_.isObject(obj) || !_.isFunction(obj.constructor)) {
             return false;
         }
 
-        if (typeof Type !== 'function') {
+        if (!_.isFunction(Type)) {
             return false;
         }
 
@@ -591,7 +591,7 @@ var Classes = (function() {
             return true;
         }
 
-        if (typeof obj.constructor.is !== 'function') {
+        if (!_.isFunction(obj.constructor.is)) {
             return false;
         }
 

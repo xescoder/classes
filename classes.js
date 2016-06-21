@@ -132,7 +132,7 @@ var Classes = (function() {
      */
     _.assign = function(obj, source, isFullClone) {
         for (var key in source) {
-            if (source.hasOwnProperty(key)) {
+            if (_.hasOwn(source, key)) {
                 obj[key] = isFullClone ? _.clone(source[key]) : source[key];
             }
         }
@@ -152,7 +152,7 @@ var Classes = (function() {
      */
     _.assignExternalInterface = function(obj, source, context) {
         for (var key in source) {
-            if (source.hasOwnProperty(key)) {
+            if (_.hasOwn(source, key)) {
                 if (_.isFunction(source[key])) {
                     obj[key] = _.bind(context, obj, source[key]);
                 } else {
@@ -366,7 +366,7 @@ var Classes = (function() {
 
             var parentFullName = Parent.getFullName();
 
-            if (!this.__extends.hasOwnProperty(parentFullName)) {
+            if (!_.hasOwn(this.__extends, parentFullName)) {
                 this.__extends[parentFullName] = _.isExtend(this, Parent);
             }
 
@@ -467,7 +467,7 @@ var Classes = (function() {
         decl: function(name, body) {
             var fullName = this.getFullName() + '.' + name, constructor;
 
-            if (this.hasOwnProperty(name)) {
+            if (_.hasOwn(this, name)) {
                 throw new Error('Classes. Не удалось создать класс: имя ' + fullName + ' уже занято.');
             }
 
@@ -496,7 +496,7 @@ var Classes = (function() {
             throw new Error('Classes. ' + base.getFullName() + ' не является пространством имён.');
         }
 
-        if (base.hasOwnProperty(name)) {
+        if (_.hasOwn(base, name)) {
             throw new Error('Classes. Не удалось создать пространство имён: имя ' + fullName + ' уже занято.');
         }
 

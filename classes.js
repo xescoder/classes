@@ -165,17 +165,6 @@ var Classes = (function() {
     };
 
     /**
-     * Устанавливает значение приватного поля Classes
-     *
-     * @private
-     * @param {String} prop - Название приватного поля
-     * @param {Mixes} value - Устанавливаемое значение
-     */
-    _.setPrivate = function(prop, value) {
-        _[prop] = value;
-    };
-
-    /**
      * Проверяет, что Child унаследован от Parent
      *
      * @private
